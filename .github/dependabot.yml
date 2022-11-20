@@ -3,4 +3,11 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "daily"
+    open-pull-requests-limit: 0
+    labels:
+      - "dependencies"
+      - "needs:merge"
+      - "type:housekeeping"
+    reviewers:
+      - oliversalzburg

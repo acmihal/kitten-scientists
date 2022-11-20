@@ -1,6 +1,7 @@
 import { difference } from "../tools/Array";
-import { objectEntries } from "../tools/Entries";
+import { consumeEntriesPedantic, objectEntries } from "../tools/Entries";
 import { cwarn } from "../tools/Log";
+import { isNil, Maybe } from "../tools/Maybe";
 import { GamePage, Upgrade } from "../types";
 import { Setting } from "./Settings";
 import { LegacyStorage } from "./SettingsStorage";
@@ -176,16 +177,20 @@ export class UpgradeSettings extends Setting {
       cwarn(`The workshop upgrade '${upgrade}' is not tracked in Kitten Scientists!`);
     }
     for (const upgrade of redundantInSettings) {
-      cwarn(`The workshop upgrade '${upgrade}' is not an upgrade in Kitten Game!`);
+      cwarn(`The workshop upgrade '${upgrade}' is not an upgrade in Kittens Game!`);
     }
   }
 
-  load(settings: UpgradeSettings) {
-    this.enabled = settings.enabled;
-
-    for (const [name, item] of objectEntries(settings.upgrades)) {
-      this.upgrades[name].enabled = item.enabled;
+  load(settings: Maybe<Partial<UpgradeSettings>>) {
+    if (isNil(settings)) {
+      return;
     }
+
+    super.load(settings);
+
+    consumeEntriesPedantic(this.upgrades, settings.upgrades, (upgrade, item) => {
+      upgrade.enabled = item?.enabled ?? upgrade.enabled;
+    });
   }
 
   static toLegacyOptions(settings: UpgradeSettings, subject: LegacyStorage) {

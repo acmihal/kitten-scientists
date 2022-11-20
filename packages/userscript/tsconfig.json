@@ -3,7 +3,8 @@
   "compilerOptions": {
     "rootDir": "source",
     "outDir": "output",
-    "tsBuildInfoFile": "output/.tsbuildinfo"
+    "tsBuildInfoFile": "output/.tsbuildinfo",
+    "types": ["@types/web"]
   },
   "include": ["../../@types", "./source"]
 }

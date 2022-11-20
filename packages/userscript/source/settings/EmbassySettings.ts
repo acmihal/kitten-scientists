@@ -1,4 +1,5 @@
-import { objectEntries } from "../tools/Entries";
+import { consumeEntriesPedantic, objectEntries } from "../tools/Entries";
+import { isNil, Maybe } from "../tools/Maybe";
 import { Race } from "../types";
 import { SettingMax, SettingTrigger } from "./Settings";
 import { LegacyStorage } from "./SettingsStorage";
@@ -34,13 +35,17 @@ export class EmbassySettings extends SettingTrigger {
     this.races = races;
   }
 
-  load(settings: EmbassySettings) {
-    this.enabled = settings.enabled;
-
-    for (const [name, item] of objectEntries(settings.races)) {
-      this.races[name].enabled = item.enabled;
-      this.races[name].max = item.max;
+  load(settings: Maybe<Partial<EmbassySettings>>) {
+    if (isNil(settings)) {
+      return;
     }
+
+    super.load(settings);
+
+    consumeEntriesPedantic(this.races, settings.races, (race, item) => {
+      race.enabled = item?.enabled ?? race.enabled;
+      race.max = item?.max ?? race.max;
+    });
   }
 
   static toLegacyOptions(settings: EmbassySettings, subject: LegacyStorage) {

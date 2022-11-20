@@ -1,10 +1,8 @@
 import { isNil, mustExist } from "../tools/Maybe";
 import { UserScript } from "../UserScript";
 import { BonfireSettingsUi } from "./BonfireSettingsUi";
-import { ExpandoButton } from "./components/ExpandoButton";
 import { EngineSettingsUi } from "./EngineSettingsUi";
 import { FiltersSettingsUi } from "./FilterSettingsUi";
-import { OptionsSettingsUi } from "./OptionsSettingsUi";
 import { ReligionSettingsUi } from "./ReligionSettingsUi";
 import { ResourcesSettingsUi } from "./ResourcesSettingsUi";
 import { ScienceSettingsUi } from "./ScienceSettingsUi";
@@ -29,7 +27,6 @@ export class UserInterface {
   private _timeUi: TimeSettingsUi;
   private _timeCtrlUi: TimeControlSettingsUi;
   private _distributeUi: VillageSettingsUi;
-  private _optionsUi: OptionsSettingsUi;
   private _filterUi: FiltersSettingsUi;
 
   constructor(host: UserScript) {
@@ -47,7 +44,6 @@ export class UserInterface {
     this._timeUi = new TimeSettingsUi(this._host, engine.timeManager.settings);
     this._timeCtrlUi = new TimeControlSettingsUi(this._host, engine.timeControlManager.settings);
     this._distributeUi = new VillageSettingsUi(this._host, engine.villageManager.settings);
-    this._optionsUi = new OptionsSettingsUi(this._host, engine.settings.options);
     this._filterUi = new FiltersSettingsUi(this._host, engine.settings.filters);
   }
 
@@ -75,13 +71,10 @@ export class UserInterface {
     optionsListElement.append(this._spaceUi.element);
     optionsListElement.append(this._timeUi.element);
     optionsListElement.append(this._timeCtrlUi.element);
-    optionsListElement.append(this._optionsUi.element);
     optionsListElement.append(this._filterUi.element);
 
-    const expando = new ExpandoButton(this._host);
-    this._engineUi.element.append(expando.element);
-
     // Make _engineUI's expando button hide/show the other option groups
+    const expando = this._engineUi.expando;
     let sectionsVisible = false;
     expando.element.on("click", () => {
       sectionsVisible = !sectionsVisible;
@@ -101,8 +94,19 @@ export class UserInterface {
       this._timeUi.toggle(sectionsVisible);
       this._timeCtrlUi.toggle(sectionsVisible);
       this._distributeUi.toggle(sectionsVisible);
-      this._optionsUi.toggle(sectionsVisible);
       this._filterUi.toggle(sectionsVisible);
+    });
+
+    const copyButton = this._engineUi.copyButton;
+    copyButton.element.on("click", () => {
+      this._host.copySettings().catch(console.error);
+    });
+    this._engineUi.importButton.element.on("click", () => {
+      const input = window.prompt("Paste your settings here");
+      if (isNil(input)) {
+        return;
+      }
+      this._host.importSettings(input);
     });
 
     // Set up the "show activity summary" area.
@@ -132,7 +136,6 @@ export class UserInterface {
     this._timeUi.refreshUi();
     this._timeCtrlUi.refreshUi();
     this._distributeUi.refreshUi();
-    this._optionsUi.refreshUi();
     this._filterUi.refreshUi();
   }
 

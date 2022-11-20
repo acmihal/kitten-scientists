@@ -21,7 +21,7 @@ import { WorkshopSettings } from "./settings/WorkshopSettings";
 import { SpaceManager } from "./SpaceManager";
 import { TimeControlManager } from "./TimeControlManager";
 import { TimeManager } from "./TimeManager";
-import { cdebug, cwarn } from "./tools/Log";
+import { cdebug, cerror, cwarn } from "./tools/Log";
 import { TradeManager } from "./TradeManager";
 import { DefaultLanguage, UserScript } from "./UserScript";
 import { VillageManager } from "./VillageManager";
@@ -34,6 +34,7 @@ export type Automation = {
   tick(context: TickContext): void | Promise<void>;
 };
 export type EngineState = {
+  v: string;
   engine: EngineSettings;
   bonfire: BonfireSettings;
   religion: ReligionSettings;
@@ -101,21 +102,55 @@ export class Engine {
     return language in this._i18nData;
   }
 
+  /**
+   * Loads a new state into the engine.
+   *
+   * @param settings The engine state to load.
+   */
   stateLoad(settings: EngineState) {
-    this.settings.load(settings.engine);
-    this.bonfireManager.load(settings.bonfire);
-    this.religionManager.load(settings.religion);
-    this.scienceManager.load(settings.science);
-    this.spaceManager.load(settings.space);
-    this.timeControlManager.load(settings.timeControl);
-    this.timeManager.load(settings.time);
-    this.tradeManager.load(settings.trade);
-    this.villageManager.load(settings.village);
-    this.workshopManager.load(settings.workshop);
+    // For now, we only log a warning on mismatching tags.
+    // Ideally, we would perform semvar comparison, but that is
+    // excessive at this point in time. The goal should be a stable
+    // state import of most versions anyway.
+    if (settings.v !== KS_VERSION) {
+      cwarn(
+        `Attempting to load engine state with version tag '${
+          settings.v
+        }' when engine is at version '${KS_VERSION ?? "latest"}'!`
+      );
+    }
+
+    // Perform the load of each sub settings section in a try-catch to
+    // allow us to still load the other sections if there were schema
+    // changes.
+    const attemptLoad = (loader: () => unknown, errorMessage: string) => {
+      try {
+        loader();
+      } catch (error) {
+        cerror(`Failed load of ${errorMessage} settings.`, error);
+      }
+    };
+
+    attemptLoad(() => this.settings.load(settings.engine), "engine");
+    attemptLoad(() => this.bonfireManager.load(settings.bonfire), "bonfire");
+    attemptLoad(() => this.religionManager.load(settings.religion), "religion");
+    attemptLoad(() => this.scienceManager.load(settings.science), "science");
+    attemptLoad(() => this.spaceManager.load(settings.space), "space");
+    attemptLoad(() => this.timeControlManager.load(settings.timeControl), "time control");
+    attemptLoad(() => this.timeManager.load(settings.time), "time");
+    attemptLoad(() => this.tradeManager.load(settings.trade), "trade");
+    attemptLoad(() => this.villageManager.load(settings.village), "village");
+    attemptLoad(() => this.workshopManager.load(settings.workshop), "workshop");
   }
 
+  /**
+   * Serializes all settings in the engine.
+   *
+   * @returns A snapshot of the current engine settings state.
+   */
   stateSerialize(): EngineState {
     return {
+      v: KS_VERSION ?? "latest",
       engine: this.settings,
       bonfire: this.bonfireManager.settings,
       religion: this.religionManager.settings,
@@ -185,15 +220,8 @@ export class Engine {
   private async _iterate(): Promise<void> {
     const context = { tick: new Date().getTime() };
 
-    const subOptions = this._host.engine.settings.options;
-
     // The order in which these actions are performed is probably
     // semi-intentional and should be preserved or improved.
-
-    // Observe astronomical events.
-    if (subOptions.enabled && subOptions.items.observe.enabled) {
-      this.observeStars();
-    }
     await this.scienceManager.tick(context);
     this.bonfireManager.tick(context);
     this.spaceManager.tick(context);
@@ -203,17 +231,6 @@ export class Engine {
     this.timeManager.tick(context);
     this.villageManager.tick(context);
     await this.timeControlManager.tick(context);
-  }
-
-  /**
-   * If there is currently an astronomical event, observe it.
-   */
-  observeStars(): void {
-    if (this._host.gamePage.calendar.observeBtn !== null) {
-      this._host.gamePage.calendar.observeHandler();
-      this._host.engine.iactivity("act.observe", [], "ks-star");
-      this._host.engine.storeForSummary("stars", 1);
-    }
   }
 
   /**
@@ -227,13 +244,17 @@ export class Engine {
     key: keyof typeof i18nData[SupportedLanguages] | TKittenGameLiteral,
     args: Array<number | string> = []
   ): string {
+    let value;
+
     // Key is to be translated through KG engine.
     if (key.startsWith("$")) {
-      return this._host.i18nEngine(key.slice(1));
+      value = this._host.i18nEngine(key.slice(1));
     }
 
-    let value =
+    value =
+      value ??
       this._i18nData[this._host.language][key as keyof typeof i18nData[SupportedLanguages]];
+
     if (typeof value === "undefined" || value === null) {
       value = i18nData[DefaultLanguage][key as keyof typeof i18nData[SupportedLanguages]];
       if (!value) {

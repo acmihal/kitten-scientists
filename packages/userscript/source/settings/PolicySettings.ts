@@ -1,6 +1,7 @@
 import { difference } from "../tools/Array";
-import { objectEntries } from "../tools/Entries";
+import { consumeEntriesPedantic, objectEntries } from "../tools/Entries";
 import { cwarn } from "../tools/Log";
+import { isNil, Maybe } from "../tools/Maybe";
 import { GamePage, Policy } from "../types";
 import { Setting } from "./Settings";
 import { LegacyStorage } from "./SettingsStorage";
@@ -79,16 +80,20 @@ export class PolicySettings extends Setting {
       cwarn(`The policy '${policy}' is not tracked in Kitten Scientists!`);
     }
     for (const policy of redundantInSettings) {
-      cwarn(`The policy '${policy}' is not a policy in Kitten Game!`);
+      cwarn(`The policy '${policy}' is not a policy in Kittens Game!`);
     }
   }
 
-  load(settings: PolicySettings) {
-    this.enabled = settings.enabled;
-
-    for (const [name, item] of objectEntries(settings.policies)) {
-      this.policies[name].enabled = item.enabled;
+  load(settings: Maybe<Partial<PolicySettings>>) {
+    if (isNil(settings)) {
+      return;
     }
+
+    super.load(settings);
+
+    consumeEntriesPedantic(this.policies, settings.policies, (policy, item) => {
+      policy.enabled = item?.enabled ?? policy.enabled;
+    });
   }
 
   static toLegacyOptions(settings: PolicySettings, subject: LegacyStorage) {

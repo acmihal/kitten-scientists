@@ -24,13 +24,19 @@ declare global {
   const KS_VERSION: string | null;
   let unsafeWindow: Window | undefined;
   interface Window {
+    $: JQuery;
+    $I?: Maybe<I18nEngine>;
     dojo: {
       clone: <T>(subject: T) => T;
       subscribe: (event: string, handler: (...args: any[]) => void) => void;
     };
     gamePage?: Maybe<GamePage>;
-    $: JQuery;
-    $I?: Maybe<I18nEngine>;
+    LZString: {
+      compressToBase64: (input: string) => string;
+      compressToUTF16: (input: string) => string;
+      decompressFromBase64: (input: string) => string;
+      decompressFromUTF16: (input: string) => string;
+    };
   }
 }
 
@@ -124,6 +130,7 @@ export class UserScript {
 
   loadLegacyOptions(source: LegacyStorage) {
     this.engine.stateLoad({
+      v: KS_VERSION ?? "latest",
       bonfire: BonfireSettings.fromLegacyOptions(source),
       engine: EngineSettings.fromLegacyOptions(source),
       religion: ReligionSettings.fromLegacyOptions(source),
@@ -151,12 +158,34 @@ export class UserScript {
       workshop: this.engine.workshopManager.settings,
     });
   }
-  getSettings() {
+
+  getSettings(): EngineState {
     return this.engine.stateSerialize();
   }
+  encodeSettings(settings: EngineState) {
+    const settingsString = JSON.stringify(settings);
+    return window.LZString.compressToBase64(settingsString);
+  }
+  async copySettings() {
+    const settings = this.getSettings();
+    const compressedSettings = this.encodeSettings(settings);
+    await window.navigator.clipboard.writeText(compressedSettings);
+    this.engine.imessage("settings.copied");
+  }
+
   setSettings(settings: EngineState) {
     cinfo("Loading engine state...");
     this.engine.stateLoad(settings);
+    this._userInterface.refreshUi();
+  }
+  decodeSettings(compressedSettings: string): EngineState {
+    const settingsString = window.LZString.decompressFromBase64(compressedSettings);
+    return JSON.parse(settingsString) as EngineState;
+  }
+  importSettings(compressedSettings: string) {
+    const settings = this.decodeSettings(compressedSettings);
+    this.setSettings(settings);
+    this.engine.imessage("settings.imported");
   }
 
   installSaveManager() {
@@ -165,7 +194,7 @@ export class UserScript {
   }
 
   /**
-   * Experimental save manager for Kitten Game.
+   * Experimental save manager for Kittens Game.
    * It can be injected manually into the game to cause KS settings to be
    * injected into the save blob.
    *
@@ -189,6 +218,7 @@ export class UserScript {
       );
       //this.engine.stateLoad(state);
     },
+    resetState: () => null,
     save: (saveData: Record<string, unknown>) => {
       cwarn("EXPERIMENTAL: Injecting Kitten Scientists engine state into save data...");
       saveData.ks = { state: [this.getSettings()] };

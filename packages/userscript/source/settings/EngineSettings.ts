@@ -1,5 +1,5 @@
+import { isNil, Maybe } from "../tools/Maybe";
 import { FilterSettings } from "./FilterSettings";
-import { OptionsSettings } from "./OptionsSettings";
 import { ResourcesSettings } from "./ResourcesSettings";
 import { Setting } from "./Settings";
 import { LegacyStorage } from "./SettingsStorage";
@@ -11,27 +11,28 @@ export class EngineSettings extends Setting {
   interval = 2000;
 
   filters: FilterSettings;
-  options: OptionsSettings;
   resources: ResourcesSettings;
 
   constructor(
     enabled = false,
     filters = new FilterSettings(),
-    options = new OptionsSettings(),
     resources = new ResourcesSettings()
   ) {
     super(enabled);
     this.filters = filters;
-    this.options = options;
     this.resources = resources;
   }
 
-  load(settings: EngineSettings) {
-    this.enabled = settings.enabled;
-    this.interval = settings.interval;
+  load(settings: Maybe<Partial<EngineSettings>>) {
+    if (isNil(settings)) {
+      return;
+    }
+
+    super.load(settings);
+
+    this.interval = settings.interval ?? this.interval;
 
     this.filters.load(settings.filters);
-    this.options.load(settings.options);
     this.resources.load(settings.resources);
   }
 
@@ -40,7 +41,6 @@ export class EngineSettings extends Setting {
     subject.toggles.engine = settings.enabled;
 
     FilterSettings.toLegacyOptions(settings.filters, subject);
-    OptionsSettings.toLegacyOptions(settings.options, subject);
     ResourcesSettings.toLegacyOptions(settings.resources, subject);
   }
 
@@ -51,7 +51,6 @@ export class EngineSettings extends Setting {
     options.enabled = subject.toggles.engine ?? options.enabled;
 
     options.filters = FilterSettings.fromLegacyOptions(subject);
-    options.options = OptionsSettings.fromLegacyOptions(subject);
     options.resources = ResourcesSettings.fromLegacyOptions(subject);
 
     return options;

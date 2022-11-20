@@ -328,7 +328,11 @@ export class TradeManager implements Automation {
           ? Number.POSITIVE_INFINITY
           : this.settings.buildEmbassies.races[name].max;
 
-      if (!this.settings.buildEmbassies.races[name].enabled || max <= race.embassyLevel) {
+      if (
+        !this.settings.buildEmbassies.races[name].enabled ||
+        max <= race.embassyLevel ||
+        !race.unlocked
+      ) {
         continue;
       }
 

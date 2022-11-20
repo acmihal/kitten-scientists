@@ -1,4 +1,5 @@
-import { objectEntries } from "../tools/Entries";
+import { consumeEntriesPedantic, objectEntries } from "../tools/Entries";
+import { isNil, Maybe } from "../tools/Maybe";
 import { ChronoForgeUpgrades, TimeItemVariant, VoidSpaceUpgrades } from "../types";
 import { Requirement, SettingMax, SettingTrigger } from "./Settings";
 import { LegacyStorage } from "./SettingsStorage";
@@ -60,14 +61,17 @@ export class TimeSettings extends SettingTrigger {
     this.fixCryochambers = fixCryochambers;
   }
 
-  load(settings: TimeSettings) {
-    this.enabled = settings.enabled;
-    this.trigger = settings.trigger;
-
-    for (const [name, item] of objectEntries(settings.buildings)) {
-      this.buildings[name].enabled = item.enabled;
-      this.buildings[name].max = item.max;
+  load(settings: Maybe<Partial<TimeSettings>>) {
+    if (isNil(settings)) {
+      return;
     }
+
+    super.load(settings);
+
+    consumeEntriesPedantic(this.buildings, settings.buildings, (building, item) => {
+      building.enabled = item?.enabled ?? building.enabled;
+      building.max = item?.max ?? building.max;
+    });
   }
 
   static toLegacyOptions(settings: TimeSettings, subject: LegacyStorage) {

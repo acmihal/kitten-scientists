@@ -1,4 +1,5 @@
-import { objectEntries } from "../tools/Entries";
+import { consumeEntriesPedantic, objectEntries } from "../tools/Entries";
+import { isNil, Maybe } from "../tools/Maybe";
 import { GamePage, ResourceCraftable } from "../types";
 import { Requirement, Setting, SettingLimitedMax, SettingTrigger } from "./Settings";
 import { LegacyStorage } from "./SettingsStorage";
@@ -65,18 +66,22 @@ export class WorkshopSettings extends SettingTrigger {
     UpgradeSettings.validateGame(game, settings.unlockUpgrades);
   }
 
-  load(settings: WorkshopSettings) {
-    this.enabled = settings.enabled;
-
-    for (const [name, item] of objectEntries(settings.resources)) {
-      this.resources[name].enabled = item.enabled;
-      this.resources[name].limited = item.limited;
-      this.resources[name].max = item.max;
+  load(settings: Maybe<Partial<WorkshopSettings>>) {
+    if (isNil(settings)) {
+      return;
     }
+
+    super.load(settings);
+
+    consumeEntriesPedantic(this.resources, settings.resources, (resource, item) => {
+      resource.enabled = item?.enabled ?? resource.enabled;
+      resource.limited = item?.limited ?? resource.limited;
+      resource.max = item?.max ?? resource.max;
+    });
 
     this.unlockUpgrades.load(settings.unlockUpgrades);
 
-    this.shipOverride.enabled = settings.shipOverride.enabled;
+    this.shipOverride.enabled = settings.shipOverride?.enabled ?? this.shipOverride.enabled;
   }
 
   static toLegacyOptions(settings: WorkshopSettings, subject: LegacyStorage) {

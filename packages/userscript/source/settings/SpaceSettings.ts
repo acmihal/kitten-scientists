@@ -1,4 +1,5 @@
-import { objectEntries } from "../tools/Entries";
+import { consumeEntriesPedantic, objectEntries } from "../tools/Entries";
+import { isNil, Maybe } from "../tools/Maybe";
 import { GamePage, SpaceBuildings } from "../types";
 import { MissionSettings } from "./MissionSettings";
 import { SettingMax, SettingTrigger } from "./Settings";
@@ -57,14 +58,17 @@ export class SpaceSettings extends SettingTrigger {
     MissionSettings.validateGame(game, settings.unlockMissions);
   }
 
-  load(settings: SpaceSettings) {
-    this.enabled = settings.enabled;
-    this.trigger = settings.trigger;
-
-    for (const [name, item] of objectEntries(settings.buildings)) {
-      this.buildings[name].enabled = item.enabled;
-      this.buildings[name].max = item.max;
+  load(settings: Maybe<Partial<SpaceSettings>>) {
+    if (isNil(settings)) {
+      return;
     }
+
+    super.load(settings);
+
+    consumeEntriesPedantic(this.buildings, settings.buildings, (building, item) => {
+      building.enabled = item?.enabled ?? building.enabled;
+      building.max = item?.max ?? building.max;
+    });
 
     this.unlockMissions.load(settings.unlockMissions);
   }

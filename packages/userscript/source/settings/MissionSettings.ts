@@ -1,6 +1,7 @@
 import { difference } from "../tools/Array";
-import { objectEntries } from "../tools/Entries";
+import { consumeEntriesPedantic, objectEntries } from "../tools/Entries";
 import { cwarn } from "../tools/Log";
+import { isNil, Maybe } from "../tools/Maybe";
 import { GamePage, Missions } from "../types";
 import { Setting } from "./Settings";
 import { LegacyStorage } from "./SettingsStorage";
@@ -71,16 +72,20 @@ export class MissionSettings extends Setting {
       cwarn(`The space mission '${mission}' is not tracked in Kitten Scientists!`);
     }
     for (const mission of redundantInSettings) {
-      cwarn(`The space mission '${mission}' is not a space mission in Kitten Game!`);
+      cwarn(`The space mission '${mission}' is not a space mission in Kittens Game!`);
     }
   }
 
-  load(settings: MissionSettings) {
-    this.enabled = settings.enabled;
-
-    for (const [name, item] of objectEntries(settings.missions)) {
-      this.missions[name].enabled = item.enabled;
+  load(settings: Maybe<Partial<MissionSettings>>) {
+    if (isNil(settings)) {
+      return;
     }
+
+    super.load(settings);
+
+    consumeEntriesPedantic(this.missions, settings.missions, (mission, item) => {
+      mission.enabled = item?.enabled ?? mission.enabled;
+    });
   }
 
   static toLegacyOptions(settings: MissionSettings, subject: LegacyStorage) {
