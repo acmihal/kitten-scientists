@@ -55,10 +55,12 @@ export class TradeManager implements Automation {
 
     // We should only trade if catpower and gold hit the trigger value.
     // Trades can additionally require specific resources. We will check for those later.
-    if (
-      catpower.value / catpower.maxValue < requireTrigger ||
-      gold.value / gold.maxValue < requireTrigger
-    ) {
+    if (catpower.value / catpower.maxValue < requireTrigger) {
+      //cinfo(`[autotrade] insufficient catpower`);
+      return;
+    }
+    if (gold.value / gold.maxValue < requireTrigger) {
+      //cinfo(`[autotrade] insufficient gold`);
       return;
     }
 
@@ -66,6 +68,7 @@ export class TradeManager implements Automation {
 
     // If we can't make any trades, bail out.
     if (!this.singleTradePossible()) {
+      //cinfo(`[autotrade] !singleTradePossible(any)`);
       return;
     }
 
@@ -78,13 +81,17 @@ export class TradeManager implements Automation {
     for (const trade of Object.values(this.settings.races)) {
       const race = this.getRace(trade.race);
 
+      const season_enabled = trade.seasons[season].enabled;
+      //cinfo(`[seasons] race='${race.name}' season='${season}' enabled='${season_enabled}')`);
+
       // Check if the race is enabled, in season, unlocked, and we can actually afford it.
       if (
         !trade.enabled ||
-        !trade.seasons[season] ||
+        //!trade.seasons[season] ||
         !race.unlocked ||
         !this.singleTradePossible(trade.race)
       ) {
+        //cinfo(`[autotrade] !singleTradePossible('${race.name}')`);
         continue;
       }
 
@@ -92,6 +99,7 @@ export class TradeManager implements Automation {
       // checks moot, but whatever :D
       const button = this.getTradeButton(race.name);
       if (!button.model.enabled) {
+        //cinfo(`[autotrade] disabled('${race.name}')`);
         continue;
       }
 
@@ -103,6 +111,7 @@ export class TradeManager implements Automation {
       // If the trade is set to be limited and profitable, make this trade.
       if (trade.limited && profitable) {
         trades.push(trade.race);
+        //cinfo(`[autotrade] pushed limited profitable race='${race.name}'`);
       } else if (
         // If this trade is not limited, it must either not require anything, or
         // the required resource must be over the trigger value.
@@ -110,7 +119,10 @@ export class TradeManager implements Automation {
         !require ||
         requireTrigger <= require.value / require.maxValue
       ) {
+        //cinfo(`[autotrade] pushed race='${race.name}'`);
         trades.push(trade.race);
+      } else {
+        //cinfo(`[autotrade] race='${race.name}' limited='${trade.limited}' profitable='${profitable}' require='${trade.require}' requireTrigger='${requireTrigger}' require.value='${require.value}' require.maxValue='${require.maxValue}'`);
       }
     }
 
