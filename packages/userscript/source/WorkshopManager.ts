@@ -76,13 +76,22 @@ export class WorkshopManager extends UpgradeManager implements Automation {
             `[workshop] not buying '${setting.upgrade}' because resource='${resource.name}' available='${resource_available}' required='${resource.val}'`
           );
           if (resource.name === "relic") {
-            cinfo(
-              `[refineTC] attempting to push the refineTCBtn to get relic(s) to buy workshop upgrade '${setting.upgrade}'`
-            );
-            this._host.gamePage.religionTab.refineTCBtn.controller._transform(
-              this._host.gamePage.religionTab.refineTCBtn.model,
-              1
-            );
+            if (
+              this._host.gamePage.religionTab.refineTCBtn &&
+              this._host.gamePage.religionTab.refineTCBtn.model.enabled
+            ) {
+              cinfo(
+                `[refineTC] attempting to push the refineTCBtn to get relic(s) to buy workshop upgrade '${setting.upgrade}'`
+              );
+              this._host.gamePage.religionTab.refineTCBtn.controller._transform(
+                this._host.gamePage.religionTab.refineTCBtn.model,
+                1
+              );
+            } else {
+              cinfo(
+                `[refineTC] refineTCBtn is invisible or disabled to buy workshop upgrade '${setting.upgrade}'`
+              );
+            }
           }
           continue workLoop;
         }

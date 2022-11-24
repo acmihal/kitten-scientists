@@ -78,13 +78,22 @@ export class ScienceManager extends UpgradeManager {
             `[science] not buying '${setting.tech}' because resource='${resource.name}' available='${resource_available}' required='${resource.val}'`
           );
           if (resource.name === "relic") {
-            cinfo(
-              `[refineTC] attempting to push the refineTCBtn to get relic(s) to buy tech '${setting.tech}'`
-            );
-            this._host.gamePage.religionTab.refineTCBtn.controller._transform(
-              this._host.gamePage.religionTab.refineTCBtn.model,
-              1
-            );
+            if (
+              this._host.gamePage.religionTab.refineTCBtn &&
+              this._host.gamePage.religionTab.refineTCBtn.model.enabled
+            ) {
+              cinfo(
+                `[refineTC] attempting to push the refineTCBtn to get relic(s) to buy tech '${setting.tech}'`
+              );
+              this._host.gamePage.religionTab.refineTCBtn.controller._transform(
+                this._host.gamePage.religionTab.refineTCBtn.model,
+                1
+              );
+            } else {
+              cinfo(
+                `[refineTC] refineTCBtn is invisible or disabled to buy tech '${setting.tech}'`
+              );
+            }
           }
           continue workLoop;
         }
