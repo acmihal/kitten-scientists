@@ -1,7 +1,7 @@
 import { TickContext } from "./Engine";
 import { ScienceSettings } from "./settings/ScienceSettings";
 import { TabManager } from "./TabManager";
-import { cerror } from "./tools/Log";
+import { cerror, cinfo } from "./tools/Log";
 import { isNil } from "./tools/Maybe";
 import { PolicyInfo, ScienceTab, TechInfo } from "./types";
 import { UpgradeManager } from "./UpgradeManager";
@@ -72,7 +72,20 @@ export class ScienceManager extends UpgradeManager {
       let prices = UserScript.window.dojo.clone(tech.prices);
       prices = this._host.gamePage.village.getEffectLeader("scientist", prices);
       for (const resource of prices) {
-        if (this._workshopManager.getValueAvailable(resource.name, true) < resource.val) {
+        const resource_available = this._workshopManager.getValueAvailable(resource.name, true);
+        if (resource_available < resource.val) {
+          cinfo(
+            `[science] not buying '${setting.tech}' because resource='${resource.name}' available='${resource_available}' required='${resource.val}'`
+          );
+          if (resource.name === "relic") {
+            cinfo(
+              `[refineTC] attempting to push the refineTCBtn to get relic(s) to buy tech '${setting.tech}'`
+            );
+            this._host.gamePage.religionTab.refineTCBtn.controller._transform(
+              this._host.gamePage.religionTab.refineTCBtn.model,
+              1
+            );
+          }
           continue workLoop;
         }
       }

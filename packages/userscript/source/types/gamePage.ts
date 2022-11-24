@@ -257,6 +257,7 @@ export type GamePage = {
   };
   religionTab: {
     sacrificeBtn: BuildButton;
+    refineTCBtn: BuildButton;
   };
   resetAutomatic: () => void;
   resPool: {

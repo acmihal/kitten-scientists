@@ -3,7 +3,7 @@ import { MaterialsCache } from "./helper/MaterialsCache";
 import { CraftSettingsItem, WorkshopSettings } from "./settings/WorkshopSettings";
 import { TabManager } from "./TabManager";
 import { objectEntries } from "./tools/Entries";
-import { cdebug, cerror } from "./tools/Log";
+import { cdebug, cerror, cinfo } from "./tools/Log";
 import { isNil, mustExist } from "./tools/Maybe";
 import { Resource, ResourceCraftable, UpgradeInfo } from "./types";
 import { CraftableInfo, ResourceInfo } from "./types/craft";
@@ -70,7 +70,20 @@ export class WorkshopManager extends UpgradeManager implements Automation {
       prices = this._host.gamePage.village.getEffectLeader("scientist", prices);
       for (const resource of prices) {
         // If we can't afford this resource price, continue with the next upgrade.
+        const resource_available = this.getValueAvailable(resource.name, true);
         if (this.getValueAvailable(resource.name, true) < resource.val) {
+          cinfo(
+            `[workshop] not buying '${setting.upgrade}' because resource='${resource.name}' available='${resource_available}' required='${resource.val}'`
+          );
+          if (resource.name === "relic") {
+            cinfo(
+              `[refineTC] attempting to push the refineTCBtn to get relic(s) to buy workshop upgrade '${setting.upgrade}'`
+            );
+            this._host.gamePage.religionTab.refineTCBtn.controller._transform(
+              this._host.gamePage.religionTab.refineTCBtn.model,
+              1
+            );
+          }
           continue workLoop;
         }
       }
