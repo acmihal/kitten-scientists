@@ -33,7 +33,7 @@ export class VillageManager implements Automation {
       return;
     }
 
-    this.autoDistributeKittens();
+    while (this.autoDistributeKittens());
 
     if (this.settings.hunt.enabled) {
       this.autoHunt(this._cacheManager);
@@ -52,14 +52,18 @@ export class VillageManager implements Automation {
     this.settings.load(settings);
   }
 
-  autoDistributeKittens() {
+  autoDistributeKittens(): boolean {
     const freeKittens = this._host.gamePage.village.getFreeKittens();
     if (!freeKittens) {
-      return;
+      return false;
     }
 
     // Find all jobs where we haven't assigned the maximum desired kittens yet.
     const jobsNotCapped = new Array<{ job: JobInfo; count: number; toCap: number }>();
+    let priestNotCapped = false;
+    let priestCount = 0;
+    let farmerNotCapped = false;
+    let farmerCount = 0;
     for (const job of this._host.gamePage.village.jobs) {
       // Skip disabled jobs and those that haven't been unlocked;
       const enabled = this.settings.jobs[job.name].enabled;
@@ -75,17 +79,38 @@ export class VillageManager implements Automation {
           : this.settings.jobs[job.name].max;
       const kittensInJob = job.value;
       if (kittensInJob < maxKittensInJob && kittensInJob < maxKittensToAssign) {
+        // FIXME ACM assign priest first
+        if (job.name === "priest") {
+          priestNotCapped = true;
+          priestCount = kittensInJob;
+        }
+        if (job.name === "farmer") {
+          farmerNotCapped = true;
+          farmerCount = kittensInJob;
+        }
         jobsNotCapped.push({ job, count: kittensInJob, toCap: maxKittensInJob - kittensInJob });
       }
     }
 
     if (!jobsNotCapped.length) {
-      return;
+      return false;
     }
 
     // Find the job with the least kittens assigned and assign a kitten to that job.
     jobsNotCapped.sort((a, b) => a.count - b.count);
-    const jobName = jobsNotCapped[0].job.name;
+    let jobName = jobsNotCapped[0].job.name;
+
+    if (priestNotCapped && farmerNotCapped) {
+      if (farmerCount <= priestCount) {
+        jobName = "farmer";
+      } else {
+        jobName = "priest";
+      }
+    } else if (priestNotCapped) {
+      jobName = "priest";
+    } else if (farmerNotCapped) {
+      jobName = "farmer";
+    }
 
     this._host.gamePage.village.assignJob(this._host.gamePage.village.getJob(jobName), 1);
     this.manager.render();
@@ -95,6 +120,8 @@ export class VillageManager implements Automation {
       "ks-distribute"
     );
     this._host.engine.storeForSummary("distribute", 1);
+
+    return true;
   }
 
   autoPromote(): void {
