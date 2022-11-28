@@ -3,6 +3,7 @@ import { MaterialsCache } from "./helper/MaterialsCache";
 import { VillageSettings } from "./settings/VillageSettings";
 import { TabManager } from "./TabManager";
 import { objectEntries } from "./tools/Entries";
+import { cinfo } from "./tools/Log";
 import { isNil } from "./tools/Maybe";
 import { Resource } from "./types";
 import { JobInfo, VillageTab } from "./types/village";
@@ -215,43 +216,53 @@ export class VillageManager implements Automation {
 
     // Check if we can afford a festival.
     const craftManager = this._workshopManager;
-    if (
-      craftManager.getValueAvailable("manpower", true) < 1500 ||
-      craftManager.getValueAvailable("culture", true) < 5000 ||
-      craftManager.getValueAvailable("parchment", true) < 2500
-    ) {
+    const manpower =
+      craftManager.getValueAvailable("manpower", true) + craftManager.getStock("manpower");
+    const culture = craftManager.getValueAvailable("culture", true);
+    const parchment = craftManager.getValueAvailable("parchment", true);
+    if (manpower < 1500) {
+      cinfo(`[party] manpower='${manpower}'`);
+      return;
+    }
+    if (culture < 5000) {
+      cinfo(`[party] culture='${culture}'`);
+      return;
+    }
+    if (parchment < 2500) {
+      cinfo(`[party] parchment='${parchment}'`);
       return;
     }
 
     // Check if the festival would even be profitable for any resource production.
-    const catpowProfitable =
-      4000 *
-        (craftManager.getTickVal(
-          craftManager.getResource("manpower"),
-          cacheManager,
-          true
-        ) as number) >
-      1500;
-    const cultureProfitable =
-      4000 *
-        (craftManager.getTickVal(
-          craftManager.getResource("culture"),
-          cacheManager,
-          true
-        ) as number) >
-      5000;
-    const parchProfitable =
-      4000 *
-        (craftManager.getTickVal(
-          craftManager.getResource("parchment"),
-          cacheManager,
-          true
-        ) as number) >
-      2500;
+    //const catpowProfitable =
+    //  4000 *
+    //    (craftManager.getTickVal(
+    //      craftManager.getResource("manpower"),
+    //      cacheManager,
+    //      true
+    //    ) as number) >
+    //  1500;
+    //const cultureProfitable =
+    //  4000 *
+    //    (craftManager.getTickVal(
+    //      craftManager.getResource("culture"),
+    //      cacheManager,
+    //      true
+    //    ) as number) >
+    //  5000;
+    //const parchProfitable =
+    //  4000 *
+    //    (craftManager.getTickVal(
+    //      craftManager.getResource("parchment"),
+    //      cacheManager,
+    //      true
+    //    ) as number) >
+    //  2500;
 
-    if (!catpowProfitable && !cultureProfitable && !parchProfitable) {
-      return;
-    }
+    // FIXME ACM always party
+    //if (!catpowProfitable && !cultureProfitable && !parchProfitable) {
+    //  return;
+    //}
 
     // Render the tab to make sure that the buttons actually exist in the DOM. Otherwise we can't click them.
     this.manager.render();
