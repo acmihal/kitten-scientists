@@ -2,7 +2,7 @@ import { Automation, TickContext } from "./Engine";
 import { BulkPurchaseHelper } from "./helper/BulkPurchaseHelper";
 import { BonfireBuildingSetting, BonfireItem, BonfireSettings } from "./settings/BonfireSettings";
 import { TabManager } from "./TabManager";
-import { cwarn } from "./tools/Log";
+import { cinfo, cwarn } from "./tools/Log";
 import { isNil, mustExist } from "./tools/Maybe";
 import { BuildButton, Building, BuildingExt, BuildingMeta, GameTab } from "./types";
 import { UserScript } from "./UserScript";
@@ -137,23 +137,27 @@ export class BonfireManager implements Automation {
         if (this._workshopManager.getPotentialCatnip(true, pastures, 0) > 0) {
           const prices = mustExist(aqueductMeta.stages)[1].prices;
           if (this._bulkManager.singleBuildPossible(aqueductMeta, prices, 1)) {
-            const button = mustExist(this.getBuildButton("aqueduct", 0));
-            button.controller.sellInternal(button.model, 0);
-            aqueductMeta.on = 0;
-            aqueductMeta.val = 0;
-            aqueductMeta.stage = 1;
+            try {
+              const button = mustExist(this.getBuildButton("aqueduct", 0));
+              button.controller.sellInternal(button.model, 0);
+              aqueductMeta.on = 0;
+              aqueductMeta.val = 0;
+              aqueductMeta.stage = 1;
 
-            // TODO: Why do we do this for the aqueduct and not for the pasture?
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            aqueductMeta.calculateEffects!(aqueductMeta, this._host.gamePage);
+              // TODO: Why do we do this for the aqueduct and not for the pasture?
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              aqueductMeta.calculateEffects!(aqueductMeta, this._host.gamePage);
 
-            this._host.engine.iactivity("upgrade.building.aqueduct", [], "ks-upgrade");
+              this._host.engine.iactivity("upgrade.building.aqueduct", [], "ks-upgrade");
 
-            this._host.gamePage.ui.render();
-            this.build("aqueduct", 1, 1);
-            this._host.gamePage.ui.render();
+              this._host.gamePage.ui.render();
+              this.build("aqueduct", 1, 1);
+              this._host.gamePage.ui.render();
 
-            return;
+              return;
+            } catch (error) {
+              cinfo(`[bonfire] aqueduct upgrade button to hydroplant should exist but does not?`);
+            }
           }
         }
       }
