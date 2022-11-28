@@ -72,9 +72,9 @@ export class WorkshopManager extends UpgradeManager implements Automation {
         // If we can't afford this resource price, continue with the next upgrade.
         const resource_available = this.getValueAvailable(resource.name, true);
         if (this.getValueAvailable(resource.name, true) < resource.val) {
-          cinfo(
-            `[workshop] not buying '${setting.upgrade}' because resource='${resource.name}' available='${resource_available}' required='${resource.val}'`
-          );
+          //cinfo(
+          //  `[workshop] not buying '${setting.upgrade}' because resource='${resource.name}' available='${resource_available}' required='${resource.val}'`
+          //);
           if (resource.name === "relic") {
             if (
               this._host.gamePage.religionTab.refineTCBtn &&
@@ -258,6 +258,8 @@ export class WorkshopManager extends UpgradeManager implements Automation {
     const ratio = this._host.gamePage.getResCraftRatio(craft.name);
     const trigger = this.settings.trigger;
 
+    //cinfo(`[GLCA] '${name}' craft='${craft}' ratio='${ratio}' trigger='${trigger}' materials='${materials}'`);
+
     // Safeguard if materials for craft cannot be determined.
     if (!materials) {
       return 0;
@@ -341,6 +343,9 @@ export class WorkshopManager extends UpgradeManager implements Automation {
         // If there is a storage limit, we can just use everything returned by getValueAvailable,
         // since the regulation happens there
         delta = this.getValueAvailable(resource) / materialAmount;
+        //if (true || name === 'alloy') {
+        //  cinfo(`[GLCA] '${name}' resource='${resource}' unlimited delta='${delta}'`);
+        //}
       } else {
         // Quantity of source and target resource currently available.
         const srcAvailable = this.getValueAvailable(resource, true);
@@ -369,6 +374,9 @@ export class WorkshopManager extends UpgradeManager implements Automation {
           const srcNeeded = recipeRequires * craftsDone;
           cdebug(`[GLCA] not crafting '${name}' until '${resource}' >= '${srcNeeded}'`);
         }
+        //if (true || name === 'alloy') {
+        //  cinfo(`[GLCA] '${name}' resource='${resource}' limited delta='${delta}'`);
+        //}
       }
 
       amount = Math.min(delta, amount, plateMax);
