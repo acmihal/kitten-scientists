@@ -437,7 +437,10 @@ export class TradeManager implements Automation {
       let refreshRequired = false;
 
       // Get the currently available catpower.
-      let manpower = this._workshopManager.getValueAvailable("manpower", true);
+      // ACM spend into manpower stock to unlock races.
+      let manpower =
+        this._workshopManager.getValueAvailable("manpower", true) +
+        this._workshopManager.getStock("manpower");
       // TODO: These should be checked in reverse order. Otherwise the check for lizards
       //       can cause the zebras to be discovered at later stages in the game. Then it
       //       gets to the check for the zebras and doesn't explore again, as they're
