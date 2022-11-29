@@ -218,8 +218,10 @@ export class VillageManager implements Automation {
     const craftManager = this._workshopManager;
     const manpower =
       craftManager.getValueAvailable("manpower", true) + craftManager.getStock("manpower");
-    const culture = craftManager.getValueAvailable("culture", true);
-    const parchment = craftManager.getValueAvailable("parchment", true);
+    const culture =
+      craftManager.getValueAvailable("culture", true) + craftManager.getStock("culture");
+    const parchment =
+      craftManager.getValueAvailable("parchment", true) + craftManager.getStock("parchment");
     if (manpower < 1500) {
       cinfo(`[party] manpower='${manpower}'`);
       return;
