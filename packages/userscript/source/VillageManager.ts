@@ -27,6 +27,7 @@ export class VillageManager implements Automation {
     this.manager = new TabManager(this._host, "Village");
     this._cacheManager = new MaterialsCache(this._host);
     this._workshopManager = workshopManager;
+    this._lastDistributeDate = Date.now();
   }
 
   tick(context: TickContext) {
@@ -121,6 +122,16 @@ export class VillageManager implements Automation {
       "ks-distribute"
     );
     this._host.engine.storeForSummary("distribute", 1);
+
+    const kittens = this._workshopManager.getResource("kittens");
+    const now = Date.now();
+    const deltaDistributeSeconds = (now - this._lastDistributeDate) / 1000;
+    cinfo(
+      `[distribute] ${Date().toString()} kittens=${kittens.value} max=${
+        kittens.maxValue
+      } job=${jobName} delta=${deltaDistributeSeconds}`
+    );
+    this._lastDistributeDate = now;
 
     return true;
   }
