@@ -80,7 +80,8 @@ export class ScienceManager extends UpgradeManager {
           if (resource.name === "relic") {
             if (
               this._host.gamePage.religionTab.refineTCBtn &&
-              this._host.gamePage.religionTab.refineTCBtn.model.enabled
+              this._host.gamePage.religionTab.refineTCBtn.model.enabled &&
+              this._workshopManager.allSpaceMissionsLaunched
             ) {
               cinfo(
                 `[refineTC] attempting to push the refineTCBtn to get relic(s) to buy tech '${setting.tech}'`
@@ -88,6 +89,10 @@ export class ScienceManager extends UpgradeManager {
               this._host.gamePage.religionTab.refineTCBtn.controller._transform(
                 this._host.gamePage.religionTab.refineTCBtn.model,
                 1
+              );
+            } else if (!this._workshopManager.allSpaceMissionsLaunched) {
+              cinfo(
+                `[refineTC] waiting for all enabled space missions to launch before refining TCs`
               );
             } else {
               cinfo(

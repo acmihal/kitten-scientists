@@ -2,7 +2,7 @@ import { Automation, TickContext } from "./Engine";
 import { BulkPurchaseHelper } from "./helper/BulkPurchaseHelper";
 import { SpaceBuildingSetting, SpaceSettings } from "./settings/SpaceSettings";
 import { TabManager } from "./TabManager";
-import { cwarn } from "./tools/Log";
+import { cinfo, cwarn } from "./tools/Log";
 import { BuildButton, SpaceBuildingInfo, SpaceBuildings, SpaceTab } from "./types";
 import { UserScript } from "./UserScript";
 import { WorkshopManager } from "./WorkshopManager";
@@ -114,6 +114,24 @@ export class SpaceManager implements Automation {
       } else {
         this._host.engine.iactivity("upgrade.space", [missions[i].label], "ks-upgrade");
       }
+    }
+
+    let allSpaceMissionsLaunched = true;
+    for (let i = 0; i < missions.length; i++) {
+      const mission = missions[i];
+      const setting = this.settings.unlockMissions.missionsList[i];
+      cinfo(
+        `[mission] name=${mission.label} val=${
+          mission.val
+        } unlocked=${mission.unlocked.toString()} enabled=${setting.enabled.toString()}`
+      );
+      if (setting.enabled && mission.val == 0) {
+        allSpaceMissionsLaunched = false;
+      }
+    }
+    if (allSpaceMissionsLaunched) {
+      cinfo(`[mission] all enabled missions have launched`);
+      this._workshopManager.allSpaceMissionsLaunched = true;
     }
   }
 

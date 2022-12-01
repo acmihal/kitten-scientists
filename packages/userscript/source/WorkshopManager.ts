@@ -21,6 +21,7 @@ export class WorkshopManager extends UpgradeManager implements Automation {
     super(host);
     this.settings = settings;
     this.manager = new TabManager(this._host, "Workshop");
+    this.allSpaceMissionsLaunched = false;
   }
 
   tick(context: TickContext) {
@@ -71,14 +72,15 @@ export class WorkshopManager extends UpgradeManager implements Automation {
       for (const resource of prices) {
         // If we can't afford this resource price, continue with the next upgrade.
         const resource_available = this.getValueAvailable(resource.name, true);
-        if (this.getValueAvailable(resource.name, true) < resource.val) {
-          //cinfo(
-          //  `[workshop] not buying '${setting.upgrade}' because resource='${resource.name}' available='${resource_available}' required='${resource.val}'`
-          //);
+        if (resource_available < resource.val) {
+          cinfo(
+            `[workshop] not buying '${setting.upgrade}' because resource='${resource.name}' available='${resource_available}' required='${resource.val}'`
+          );
           if (resource.name === "relic") {
             if (
               this._host.gamePage.religionTab.refineTCBtn &&
-              this._host.gamePage.religionTab.refineTCBtn.model.enabled
+              this._host.gamePage.religionTab.refineTCBtn.model.enabled &&
+              this.allSpaceMissionsLaunched
             ) {
               cinfo(
                 `[refineTC] attempting to push the refineTCBtn to get relic(s) to buy workshop upgrade '${setting.upgrade}'`
@@ -86,6 +88,10 @@ export class WorkshopManager extends UpgradeManager implements Automation {
               this._host.gamePage.religionTab.refineTCBtn.controller._transform(
                 this._host.gamePage.religionTab.refineTCBtn.model,
                 1
+              );
+            } else if (!this.allSpaceMissionsLaunched) {
+              cinfo(
+                `[refineTC] waiting for all enabled space missions to launch before refining TCs`
               );
             } else {
               cinfo(
