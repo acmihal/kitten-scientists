@@ -31,6 +31,12 @@ export class WorkshopManager extends UpgradeManager implements Automation {
 
     this.autoCraft();
     this.refreshStock();
+  }
+
+  tick_unlock(context: TickContext) {
+    if (!this.settings.enabled) {
+      return;
+    }
 
     if (this.settings.unlockUpgrades.enabled) {
       return this.autoUnlock();

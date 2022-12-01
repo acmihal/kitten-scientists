@@ -29,6 +29,12 @@ export class SpaceManager implements Automation {
     }
 
     this.autoBuild();
+  }
+
+  tick_unlock(context: TickContext) {
+    if (!this.settings.enabled) {
+      return;
+    }
 
     if (this.settings.unlockMissions.enabled) {
       this.autoUnlock();

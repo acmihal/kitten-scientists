@@ -21,7 +21,7 @@ import { WorkshopSettings } from "./settings/WorkshopSettings";
 import { SpaceManager } from "./SpaceManager";
 import { TimeControlManager } from "./TimeControlManager";
 import { TimeManager } from "./TimeManager";
-import { cdebug, cerror, cwarn } from "./tools/Log";
+import { cerror, cwarn } from "./tools/Log";
 import { TradeManager } from "./TradeManager";
 import { DefaultLanguage, UserScript } from "./UserScript";
 import { VillageManager } from "./VillageManager";
@@ -222,11 +222,23 @@ export class Engine {
 
     // The order in which these actions are performed is probably
     // semi-intentional and should be preserved or improved.
+    // FIXME ACM break out religionManager solar revolution buyer here
+    // FIXME ACM break out village festival holder here
+    // tech, policy, observe
     await this.scienceManager.tick(context);
+    // upgrades
+    await this.workshopManager.tick_unlock(context);
+    // missions
+    this.spaceManager.tick_unlock(context);
+    // build, steamworks, upgrade buildings
     this.bonfireManager.tick(context);
+    // build space buildings
     this.spaceManager.tick(context);
-    await this.workshopManager.tick(context);
+    // craft
+    this.workshopManager.tick(context);
+    // trade, explore, embassies, feed, blackcoin
     this.tradeManager.tick(context);
+    // build, TAP
     this.religionManager.tick(context);
     this.timeManager.tick(context);
     this.villageManager.tick(context);
@@ -331,6 +343,7 @@ export class Engine {
     const msg = this._host.gamePage.msg(...args, cssClasses);
     $(msg.span).css("color", color);
 
-    cdebug(...args);
+    // FIXME ACM clean up console spam
+    //cdebug(...args);
   }
 }
