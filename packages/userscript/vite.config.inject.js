@@ -22,7 +22,7 @@ export default defineConfig({
         entryFileNames: filename,
       },
     },
-    sourcemap: "inline",
+    sourcemap: "true",
   },
   define: {
     KG_SAVEGAME,
