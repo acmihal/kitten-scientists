@@ -2,7 +2,7 @@ import { Automation, TickContext } from "./Engine";
 import { BulkPurchaseHelper } from "./helper/BulkPurchaseHelper";
 import { BonfireBuildingSetting, BonfireItem, BonfireSettings } from "./settings/BonfireSettings";
 import { TabManager } from "./TabManager";
-import { cinfo, cwarn } from "./tools/Log";
+import { cwarn } from "./tools/Log";
 import { isNil, mustExist } from "./tools/Maybe";
 import { BuildButton, Building, BuildingExt, BuildingMeta, GameTab } from "./types";
 import { UserScript } from "./UserScript";
@@ -126,7 +126,7 @@ export class BonfireManager implements Automation {
               // TODO: Why do we return here and not just unlock more buildings?
               return;
             } catch (error) {
-              cinfo(`[bonfire] pasture upgrade button to solarfarm should exist but does not`);
+              cwarn(`[bonfire] pasture upgrade button to solarfarm should exist but does not`);
             }
           }
         }
@@ -160,7 +160,7 @@ export class BonfireManager implements Automation {
 
               return;
             } catch (error) {
-              cinfo(`[bonfire] aqueduct upgrade button to hydroplant should exist but does not`);
+              cwarn(`[bonfire] aqueduct upgrade button to hydroplant should exist but does not`);
             }
           }
         }
@@ -217,7 +217,7 @@ export class BonfireManager implements Automation {
               this._host.gamePage.ui.render();
               return;
             } catch (error) {
-              cinfo(`[bonfire] library upgrade button to datacenter should exist but does not`);
+              cwarn(`[bonfire] library upgrade button to datacenter should exist but does not`);
             }
           }
         }
@@ -251,7 +251,7 @@ export class BonfireManager implements Automation {
 
             return;
           } catch (error) {
-            cinfo(
+            cwarn(
               `[bonfire] amphitheater upgrade button to broadcasttower should exist but does not`
             );
           }
