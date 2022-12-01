@@ -39,7 +39,12 @@ export type UnicornItem =
   | "unicornUtopia";
 
 export type ReligionItem = FaithItem | UnicornItem;
-export type ReligionAdditionItem = "adore" | "autoPraise" | "bestUnicornBuilding" | "transcend";
+export type ReligionAdditionItem =
+  | "adore"
+  | "autoPraise"
+  | "bestUnicornBuilding"
+  | "transcend"
+  | "prioritizeSR";
 
 export class ReligionSettingsItem extends SettingMax {
   readonly building: FaithItem | UnicornItem;
@@ -86,6 +91,11 @@ export class ReligionSettings extends SettingTrigger {
    * Transcend.
    */
   transcend: Setting;
+
+  /**
+   * Prioritize buying Solar Revolution.
+   */
+  prioritizeSR: Setting;
 
   constructor(
     enabled = false,
@@ -305,7 +315,8 @@ export class ReligionSettings extends SettingTrigger {
     bestUnicornBuilding = new Setting(false),
     autoPraise = new SettingTrigger(true, 0.98),
     adore = new SettingTrigger(false, 0.75),
-    transcend = new Setting(false)
+    transcend = new Setting(false),
+    prioritizeSR = new Setting(false)
   ) {
     super(enabled, trigger);
     this.buildings = buildings;
@@ -313,6 +324,7 @@ export class ReligionSettings extends SettingTrigger {
     this.autoPraise = autoPraise;
     this.bestUnicornBuilding = bestUnicornBuilding;
     this.transcend = transcend;
+    this.prioritizeSR = prioritizeSR;
   }
 
   load(settings: Maybe<Partial<ReligionSettings>>) {
@@ -334,6 +346,7 @@ export class ReligionSettings extends SettingTrigger {
     this.transcend.enabled = settings.transcend?.enabled ?? this.transcend.enabled;
     this.adore.trigger = settings.adore?.trigger ?? this.adore.trigger;
     this.autoPraise.trigger = settings.autoPraise?.trigger ?? this.autoPraise.trigger;
+    this.prioritizeSR.enabled = settings.prioritizeSR?.enabled ?? this.prioritizeSR.enabled;
   }
 
   static toLegacyOptions(settings: ReligionSettings, subject: LegacyStorage) {
@@ -352,6 +365,8 @@ export class ReligionSettings extends SettingTrigger {
 
     subject.items["set-adore-trigger"] = settings.adore.trigger;
     subject.items["set-autoPraise-trigger"] = settings.autoPraise.trigger;
+
+    subject.items["toggle-prioritizeSR"] = settings.prioritizeSR.enabled;
   }
 
   static fromLegacyOptions(subject: LegacyStorage) {
@@ -374,6 +389,9 @@ export class ReligionSettings extends SettingTrigger {
     options.adore.trigger = subject.items["set-adore-trigger"] ?? options.adore.trigger;
     options.autoPraise.trigger =
       subject.items["set-autoPraise-trigger"] ?? options.autoPraise.trigger;
+
+    options.prioritizeSR.enabled =
+      subject.items["toggle-prioritizeSR"] ?? options.prioritizeSR.enabled;
 
     return options;
   }

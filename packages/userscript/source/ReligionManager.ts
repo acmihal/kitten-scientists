@@ -47,6 +47,19 @@ export class ReligionManager implements Automation {
     this._bonfireManager = bonfireManager;
   }
 
+  tick_prioritizeSR(context: TickContext) {
+    if (this.settings.enabled && this.settings.prioritizeSR.enabled) {
+      // Try to build only the buildings in priorityList.
+      const priorityList: Array<FaithItem | UnicornItem> = ["solarRevolution"];
+      const builds = Object.fromEntries(
+        Object.entries(this.settings.buildings).filter(([k, v]) =>
+          priorityList.includes(v.building)
+        )
+      );
+      this._buildReligionBuildings(builds);
+    }
+  }
+
   tick(context: TickContext) {
     if (!this.settings.enabled) {
       return;
@@ -192,9 +205,29 @@ export class ReligionManager implements Automation {
       "unicornUtopia",
       "sunspire",
     ];
+    const deprioritize: Array<FaithItem | UnicornItem> = [
+      "solarchant",
+      "scholasticism",
+      "goldenSpire",
+      "sunAltar",
+      "stainedGlass",
+      "basilica",
+      "templars",
+      "apocripha",
+      "transcendence",
+    ];
+    // !alreadyHandled
+    // && (!deprioritized || !prioritizeSR || solarRevolutionHasBeenUnlocked)
+    const solarRevolutionVal = this.getBuildMetaData([this.settings.buildings["solarRevolution"]])[
+      "solarRevolution"
+    ].val;
     const builds = Object.fromEntries(
       Object.entries(this.settings.buildings).filter(
-        ([k, v]) => !alreadyHandled.includes(v.building)
+        ([k, v]) =>
+          !alreadyHandled.includes(v.building) &&
+          (!deprioritize.includes(v.building) ||
+            !this.settings.prioritizeSR.enabled ||
+            solarRevolutionVal > 0)
       )
     );
     this._buildReligionBuildings(builds);

@@ -222,24 +222,36 @@ export class Engine {
 
     // The order in which these actions are performed is probably
     // semi-intentional and should be preserved or improved.
-    // FIXME ACM break out religionManager solar revolution buyer here
+
+    // solar revolution
+    this.religionManager.tick_prioritizeSR(context);
+
     // FIXME ACM break out village festival holder here
+
     // tech, policy, observe
     await this.scienceManager.tick(context);
+
     // upgrades
     await this.workshopManager.tick_unlock(context);
+
     // missions
     this.spaceManager.tick_unlock(context);
+
     // build, steamworks, upgrade buildings
     this.bonfireManager.tick(context);
+
     // build space buildings
     this.spaceManager.tick(context);
+
     // craft
     this.workshopManager.tick(context);
+
     // trade, explore, embassies, feed, blackcoin
     this.tradeManager.tick(context);
+
     // build, TAP
     this.religionManager.tick(context);
+
     this.timeManager.tick(context);
     this.villageManager.tick(context);
     await this.timeControlManager.tick(context);

@@ -121,6 +121,7 @@
     "toggle-ship": true,
     "toggle-unicornPasture": true,
     "toggle-bestUnicornBuilding": true,
+    "toggle-prioritizeSR": false,
     "toggle-reset-space-hydrofracturer": false,
     "toggle-reset-space-spiceRefinery": false,
     "toggle-reset-space-researchVessel": false,

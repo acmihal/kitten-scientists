@@ -14,6 +14,8 @@ export class ReligionSettingsUi extends SettingsSectionUi<ReligionSettings> {
 
   private readonly _unicornBuildings: Array<SettingMaxListItem>;
   private readonly _bestUnicornBuilding: SettingListItem;
+  private readonly _solarRevolution: SettingMaxListItem;
+  private readonly _prioritizeSR: SettingListItem;
 
   constructor(host: UserScript, settings: ReligionSettings) {
     const label = host.engine.i18n("ui.faith");
@@ -92,6 +94,33 @@ export class ReligionSettingsUi extends SettingsSectionUi<ReligionSettings> {
       true,
       true
     );
+    this._solarRevolution = this._getBuildOption(
+      this.setting.buildings.solarRevolution,
+      this._host.engine.i18n("$religion.ru.solarRevolution.label")
+    );
+    this._prioritizeSR = new SettingListItem(
+      this._host,
+      this._host.engine.i18n("option.faith.prioritize.sr"),
+      this.setting.prioritizeSR,
+      {
+        onCheck: () => {
+          this._host.engine.imessage("status.sub.enable", [
+            this._host.engine.i18n("option.faith.prioritize.sr"),
+          ]);
+          this._solarRevolution.setting.enabled = true;
+          this._solarRevolution.setting.max = -1;
+          this.refreshUi();
+        },
+        onUnCheck: () => {
+          this._host.engine.imessage("status.sub.disable", [
+            this._host.engine.i18n("option.faith.prioritize.sr"),
+          ]);
+          this.refreshUi();
+        },
+      },
+      true,
+      true
+    );
 
     const uiElements = [
       new HeaderListItem(this._host, this._host.engine.i18n("$religion.panel.ziggurat.label")),
@@ -137,10 +166,7 @@ export class ReligionSettingsUi extends SettingsSectionUi<ReligionSettings> {
         this.setting.buildings.stainedGlass,
         this._host.engine.i18n("$religion.ru.stainedGlass.label")
       ),
-      this._getBuildOption(
-        this.setting.buildings.solarRevolution,
-        this._host.engine.i18n("$religion.ru.solarRevolution.label")
-      ),
+      this._solarRevolution,
       this._getBuildOption(
         this.setting.buildings.basilica,
         this._host.engine.i18n("$religion.ru.basilica.label")
@@ -155,9 +181,9 @@ export class ReligionSettingsUi extends SettingsSectionUi<ReligionSettings> {
       ),
       this._getBuildOption(
         this.setting.buildings.transcendence,
-        this._host.engine.i18n("$religion.ru.transcendence.label"),
-        true
+        this._host.engine.i18n("$religion.ru.transcendence.label")
       ),
+      this._prioritizeSR,
 
       new HeaderListItem(
         this._host,
@@ -259,11 +285,14 @@ export class ReligionSettingsUi extends SettingsSectionUi<ReligionSettings> {
   }
 
   refreshUi() {
-    super.refreshUi();
-
     for (const building of this._unicornBuildings) {
       building.readOnly = this._bestUnicornBuilding.setting.enabled;
       building.maxButton.readOnly = this._bestUnicornBuilding.setting.enabled;
     }
+
+    this._solarRevolution.readOnly = this._prioritizeSR.setting.enabled;
+    this._solarRevolution.maxButton.readOnly = this._prioritizeSR.setting.enabled;
+
+    super.refreshUi();
   }
 }
