@@ -1,24 +1,25 @@
-import { Setting } from "../../settings/Settings";
+import { SettingOptions } from "../../settings/Settings";
 import { UserScript } from "../../UserScript";
 import { UiComponent } from "./UiComponent";
 
-export class SettingListItem<TSetting extends Setting = Setting> extends UiComponent {
+export class RadioItem<TSetting extends SettingOptions = SettingOptions> extends UiComponent {
   readonly setting: TSetting;
+  readonly option: TSetting["options"][0];
   readonly element: JQuery<HTMLElement>;
-  readonly checkbox: JQuery<HTMLElement>;
+  readonly input: JQuery<HTMLElement>;
 
   readOnly: boolean;
 
   /**
-   * Construct a new setting element.
-   * This is a simple checkbox with a label.
+   * Construct a new radio setting element.
+   * This is a radio input that is expected to be hosted in a `Fieldset`.
    *
    * @param host The userscript instance.
-   * @param label The label on the setting element.
    * @param setting The setting this element is linked to.
+   * @param option The specific option out of the setting that this radio item represents.
+   * @param groupKey A unique name for the group of radio items this one belongs to.
    * @param handler The event handlers for this setting element.
-   * @param handler.onCheck Will be invoked when the user checks the checkbox.
-   * @param handler.onUnCheck Will be invoked when the user unchecks the checkbox.
+   * @param handler.onCheck Will be invoked when the user selects this radio item.
    * @param delimiter Should there be additional padding below this element?
    * @param upgradeIndicator Should an indicator be rendered in front of the elemnt,
    * to indicate that this is an upgrade of a prior setting?
@@ -26,11 +27,11 @@ export class SettingListItem<TSetting extends Setting = Setting> extends UiCompo
    */
   constructor(
     host: UserScript,
-    label: string,
     setting: TSetting,
+    option: TSetting["options"][0],
+    groupKey: string,
     handler: {
       onCheck: () => void;
-      onUnCheck: () => void;
     },
     delimiter = false,
     upgradeIndicator = false,
@@ -38,43 +39,39 @@ export class SettingListItem<TSetting extends Setting = Setting> extends UiCompo
   ) {
     super(host);
 
-    const element = $(`<li/>`);
+    const element = $(`<div/>`);
     for (const cssClass of ["ks-setting", delimiter ? "ks-delimiter" : ""]) {
       element.addClass(cssClass);
     }
 
     const elementLabel = $("<label/>", {
-      text: `${upgradeIndicator ? `⮤ ` : ""}${label}`,
+      text: `${upgradeIndicator ? `⮤ ` : ""}${option.label}`,
     }).addClass("ks-label");
 
-    const checkbox = $("<input/>", {
-      type: "checkbox",
-    }).addClass("ks-checkbox");
+    const input = $("<input/>", {
+      name: groupKey,
+      type: "radio",
+    }).addClass("ks-radio");
 
     this.readOnly = readOnly;
 
-    checkbox.on("change", () => {
-      if (checkbox.is(":checked") && setting.enabled === false) {
-        setting.enabled = true;
-        handler.onCheck();
-      } else if (!checkbox.is(":checked") && setting.enabled === true) {
-        setting.enabled = false;
-        handler.onUnCheck();
-      }
+    input.on("change", () => {
+      this.setting.selected = option.value;
+      handler.onCheck();
     });
 
-    elementLabel.prepend(checkbox);
+    elementLabel.prepend(input);
     element.append(elementLabel);
 
-    this.checkbox = checkbox;
+    this.input = input;
     this.element = element;
     this.setting = setting;
+    this.option = option;
   }
 
   refreshUi() {
     super.refreshUi();
 
-    this.checkbox.prop("checked", this.setting.enabled);
-    this.checkbox.prop("disabled", this.readOnly);
+    this.input.prop("disabled", this.readOnly);
   }
 }
