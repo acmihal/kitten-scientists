@@ -733,6 +733,9 @@ export class WorkshopManager extends UpgradeManager implements Automation {
    * total amount to keep in stock.
    * The user can configure this in the Workshop automation section.
    */
+  //const res = this.getResource(name);
+  //cinfo(`[refresh_stock] ${name} amount=${res.value} max=${res.maxValue}`);
+
   refreshStock() {
     for (const [name, resource] of objectEntries(this._host.engine.settings.resources.resources)) {
       if (resource.stock === 0) {
