@@ -5,7 +5,8 @@ import { TabManager } from "./TabManager";
 import { objectEntries } from "./tools/Entries";
 import { cdebug, cerror, cinfo } from "./tools/Log";
 import { isNil, mustExist } from "./tools/Maybe";
-import { Resource, ResourceCraftable, UpgradeInfo } from "./types";
+//import { Resource, ResourceCraftable, UpgradeInfo } from "./types";
+import { Resource, ResourceCraftable } from "./types";
 import { CraftableInfo, ResourceInfo } from "./types/craft";
 import { VillageTab } from "./types/village";
 import { UpgradeManager } from "./UpgradeManager";
@@ -55,7 +56,7 @@ export class WorkshopManager extends UpgradeManager implements Automation {
     this.manager.render();
 
     const upgrades = this._host.gamePage.workshop.upgrades;
-    const toUnlock = new Array<UpgradeInfo>();
+    //const toUnlock = new Array<UpgradeInfo>();
 
     workLoop: for (const setting of Object.values(this.settings.unlockUpgrades.upgrades)) {
       if (!setting.enabled) {
@@ -109,13 +110,13 @@ export class WorkshopManager extends UpgradeManager implements Automation {
         }
       }
 
-      toUnlock.push(upgrade);
+      //toUnlock.push(upgrade);
       await this.upgrade(upgrade, "workshop");
     }
 
-    for (const item of toUnlock) {
-      await this.upgrade(item, "workshop");
-    }
+    //for (const item of toUnlock) {
+    //  await this.upgrade(item, "workshop");
+    //}
   }
 
   /**
