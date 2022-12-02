@@ -81,13 +81,10 @@ export class TradeManager implements Automation {
     for (const trade of Object.values(this.settings.races)) {
       const race = this.getRace(trade.race);
 
-      const season_enabled = trade.seasons[season].enabled;
-      //cinfo(`[seasons] race='${race.name}' season='${season}' enabled='${season_enabled}')`);
-
       // Check if the race is enabled, in season, unlocked, and we can actually afford it.
       if (
         !trade.enabled ||
-        //!trade.seasons[season] ||
+        !trade.seasons[season] ||
         !race.unlocked ||
         !this.singleTradePossible(trade.race)
       ) {
