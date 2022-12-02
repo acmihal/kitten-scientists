@@ -99,12 +99,33 @@ export class ReligionManager implements Automation {
       this._buildBestUnicornBuilding();
       this._buildNonUnicornBuildings();
     } else {
+      const deprioritize: Array<FaithItem | UnicornItem> = [
+        "solarchant",
+        "scholasticism",
+        "goldenSpire",
+        "sunAltar",
+        "stainedGlass",
+        "basilica",
+        "templars",
+        "apocripha",
+        "transcendence",
+      ];
+      // !alreadyHandled
+      // && (!deprioritized || !prioritizeSR || solarRevolutionHasBeenUnlocked)
+      const solarRevolutionVal = this.getBuildMetaData([
+        this.settings.buildings["solarRevolution"],
+      ])["solarRevolution"].val;
       // Create the list of builds, excluding the unicorn pasture.
       // The unicorn pasture requires a special build path, because it's really
       // a bonfire building.
+      // Filter out deprioritized buildings if priorizeSR is on and SR is not purchased yet.
       const builds = Object.fromEntries(
         Object.entries(this.settings.buildings).filter(
-          ([k, v]) => v.variant !== UnicornItemVariant.UnicornPasture
+          ([k, v]) =>
+            v.variant !== UnicornItemVariant.UnicornPasture &&
+            (!deprioritize.includes(v.building) ||
+              !this.settings.prioritizeSR.enabled ||
+              solarRevolutionVal > 0)
         )
       );
       // Build a unicorn pasture if possible.
