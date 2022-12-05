@@ -56,6 +56,7 @@ export class BonfireSettings extends SettingTrigger {
   buildings: BonfireBuildingSettings;
 
   turnOnSteamworks: Setting;
+  turnOnMagnetos: Setting;
   upgradeBuildings: BuildingUpgradeSettings;
 
   constructor(
@@ -111,11 +112,13 @@ export class BonfireSettings extends SettingTrigger {
       ziggurat: new BonfireBuildingSetting("ziggurat", true),
     },
     turnOnSteamworks = new Setting(true),
+    turnOnMagnetos = new Setting(false),
     upgradeBuildings = new BuildingUpgradeSettings()
   ) {
     super(enabled, trigger);
     this.buildings = buildings;
     this.turnOnSteamworks = turnOnSteamworks;
+    this.turnOnMagnetos = turnOnMagnetos;
     this.upgradeBuildings = upgradeBuildings;
   }
 
@@ -134,6 +137,8 @@ export class BonfireSettings extends SettingTrigger {
     this.turnOnSteamworks.enabled =
       settings.turnOnSteamworks?.enabled ?? this.turnOnSteamworks.enabled;
 
+    this.turnOnMagnetos.enabled = settings.turnOnMagnetos?.enabled ?? this.turnOnMagnetos.enabled;
+
     this.upgradeBuildings.load(settings.upgradeBuildings);
   }
 
@@ -146,7 +151,10 @@ export class BonfireSettings extends SettingTrigger {
       subject.items[`set-${item.building}-max` as const] = item.max;
     }
 
+    // The toggle- versions without the underscore are for enabling building the building.
+    // The toggle-_ version with the underscore are for the "auto turn on" the building options.
     subject.items["toggle-_steamworks"] = settings.turnOnSteamworks.enabled;
+    subject.items["toggle-_magnetos"] = settings.turnOnMagnetos.enabled;
 
     BuildingUpgradeSettings.toLegacyOptions(settings.upgradeBuildings, subject);
   }
@@ -163,6 +171,9 @@ export class BonfireSettings extends SettingTrigger {
 
     options.turnOnSteamworks.enabled =
       subject.items["toggle-_steamworks"] ?? options.turnOnSteamworks.enabled;
+
+    options.turnOnMagnetos.enabled =
+      subject.items["toggle-_magnetos"] ?? options.turnOnMagnetos.enabled;
 
     options.upgradeBuildings = BuildingUpgradeSettings.fromLegacyOptions(subject);
 

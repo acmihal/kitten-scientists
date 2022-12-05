@@ -142,7 +142,7 @@ export type BuildButton<T = string> = {
     doFixCryochamber: (model: unknown) => boolean; // Fix broken cryochambers
     doShatterAmt: (model: unknown, amt: number) => void; // Shatter TC button
     incrementValue: (model: unknown) => void;
-    onAll: (model: unknown) => void; // Turn on all (steamworks)
+    onAll: (model: unknown) => void; // Turn on all (steamworks, magnetos)
     payPrice: (model: unknown) => void;
     sellInternal: (model: unknown, end: number) => void; // Sell button
   };
