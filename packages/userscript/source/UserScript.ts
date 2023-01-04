@@ -164,7 +164,8 @@ export class UserScript {
   }
   encodeSettings(settings: EngineState) {
     const settingsString = JSON.stringify(settings);
-    return window.LZString.compressToBase64(settingsString);
+    return settingsString;
+    //return window.LZString.compressToBase64(settingsString);
   }
   async copySettings() {
     const settings = this.getSettings();
@@ -179,7 +180,8 @@ export class UserScript {
     this._userInterface.refreshUi();
   }
   decodeSettings(compressedSettings: string): EngineState {
-    const settingsString = window.LZString.decompressFromBase64(compressedSettings);
+    //const settingsString = window.LZString.decompressFromBase64(compressedSettings);
+    const settingsString = compressedSettings;
     return JSON.parse(settingsString) as EngineState;
   }
   importSettings(compressedSettings: string) {
