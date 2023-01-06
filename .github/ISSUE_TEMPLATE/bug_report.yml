@@ -12,12 +12,20 @@ body:
       label: Version Check
       description: Please check all applicable statements. You don't _need_ to check any of these.
       options:
-        - label: I have updated to `v2.0.0-alpha.10` or later.
+        - label: I have updated to `v2.0.0-beta.1` or later.
           required: false
         - label: I have updated to the `nightly` build from last night (or latest one available).
           required: false
         - label: I have tested with the latest source code from `main` as of today.
           required: false
+
+  - type: input
+    id: browser
+    attributes:
+      label: What browser are you using?
+      description: Sometimes issues are specific to certain browsers. Providing your browser here might help in reproducing the issue.
+    validations:
+      required: false
 
   - type: textarea
     id: description
@@ -32,8 +40,7 @@ body:
     attributes:
       label: Your Savegame
       description: Provide a savegame that is suitable to illustrate the bug.
-      placeholder: Paste your savegame export here
-      render: Text
+      placeholder: Export your save to a file and then attach the file here.
     validations:
       required: false
 

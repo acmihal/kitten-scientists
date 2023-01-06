@@ -91,7 +91,8 @@ export class Engine {
       this._host,
       this.bonfireManager,
       this.religionManager,
-      this.spaceManager
+      this.spaceManager,
+      this.workshopManager
     );
     this.timeManager = new TimeManager(this._host, this.workshopManager);
     this.tradeManager = new TradeManager(this._host, this.workshopManager);
@@ -109,7 +110,7 @@ export class Engine {
    */
   stateLoad(settings: EngineState) {
     // For now, we only log a warning on mismatching tags.
-    // Ideally, we would perform semvar comparison, but that is
+    // Ideally, we would perform semver comparison, but that is
     // excessive at this point in time. The goal should be a stable
     // state import of most versions anyway.
     if (settings.v !== KS_VERSION) {
@@ -180,7 +181,7 @@ export class Engine {
         .then(() => {
           const exit = Date.now();
           const timeTaken = exit - entry;
-          this._intervalMainLoop = setTimeout(
+          this._intervalMainLoop = window.setTimeout(
             loop,
             Math.max(10, this._host.engine.settings.interval - timeTaken)
           );
@@ -189,7 +190,7 @@ export class Engine {
           cwarn(error as string);
         });
     };
-    this._intervalMainLoop = setTimeout(loop, this._host.engine.settings.interval);
+    this._intervalMainLoop = window.setTimeout(loop, this._host.engine.settings.interval);
 
     if (msg) {
       this._host.engine.imessage("status.ks.enable");

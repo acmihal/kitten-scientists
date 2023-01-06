@@ -3,11 +3,19 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
-    open-pull-requests-limit: 0
+      interval: "monthly"
+    open-pull-requests-limit: 50
     labels:
       - "dependencies"
       - "needs:merge"
       - "type:housekeeping"
-    reviewers:
-      - oliversalzburg
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "needs:merge"
+      - "type:housekeeping"

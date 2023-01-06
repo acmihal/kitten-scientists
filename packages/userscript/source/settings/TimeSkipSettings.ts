@@ -26,16 +26,16 @@ export class TimeSkipSettings extends SettingTriggerMax {
 
   constructor(
     cycles = {
-      charon: new Setting(false),
-      umbra: new Setting(false),
-      yarn: new Setting(false),
-      helios: new Setting(false),
-      cath: new Setting(false),
+      charon: new Setting(true),
+      umbra: new Setting(true),
+      yarn: new Setting(true),
+      helios: new Setting(true),
+      cath: new Setting(true),
       redmoon: new Setting(false),
-      dune: new Setting(false),
-      piscine: new Setting(false),
-      terminus: new Setting(false),
-      kairo: new Setting(false),
+      dune: new Setting(true),
+      piscine: new Setting(true),
+      terminus: new Setting(true),
+      kairo: new Setting(true),
     },
     seasons = {
       spring: new Setting(true),
@@ -62,28 +62,6 @@ export class TimeSkipSettings extends SettingTriggerMax {
     consumeEntriesPedantic(this.cycles, settings.cycles, (cycle, item) => {
       cycle.enabled = item?.enabled ?? cycle.enabled;
     });
-  }
-
-  static toLegacyOptions(settings: TimeSkipSettings, subject: LegacyStorage) {
-    subject.items["toggle-timeSkip"] = settings.enabled;
-
-    subject.items["set-timeSkip-trigger"] = settings.trigger;
-    subject.items["set-timeSkip-max"] = settings.max;
-
-    for (const [name, item] of objectEntries(settings.seasons)) {
-      subject.items[`toggle-timeSkip-${name}`] = item.enabled;
-    }
-
-    subject.items[`toggle-timeSkip-0`] = settings.cycles.charon.enabled;
-    subject.items[`toggle-timeSkip-1`] = settings.cycles.umbra.enabled;
-    subject.items[`toggle-timeSkip-2`] = settings.cycles.yarn.enabled;
-    subject.items[`toggle-timeSkip-3`] = settings.cycles.helios.enabled;
-    subject.items[`toggle-timeSkip-4`] = settings.cycles.cath.enabled;
-    subject.items[`toggle-timeSkip-5`] = settings.cycles.redmoon.enabled;
-    subject.items[`toggle-timeSkip-6`] = settings.cycles.dune.enabled;
-    subject.items[`toggle-timeSkip-7`] = settings.cycles.piscine.enabled;
-    subject.items[`toggle-timeSkip-8`] = settings.cycles.terminus.enabled;
-    subject.items[`toggle-timeSkip-9`] = settings.cycles.kairo.enabled;
   }
 
   static fromLegacyOptions(subject: LegacyStorage) {

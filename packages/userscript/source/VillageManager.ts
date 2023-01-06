@@ -3,8 +3,8 @@ import { MaterialsCache } from "./helper/MaterialsCache";
 import { VillageSettings } from "./settings/VillageSettings";
 import { TabManager } from "./TabManager";
 import { objectEntries } from "./tools/Entries";
-import { cinfo } from "./tools/Log";
-import { isNil } from "./tools/Maybe";
+import { cdebug, cinfo } from "./tools/Log";
+import { isNil, mustExist } from "./tools/Maybe";
 import { Resource } from "./types";
 import { JobInfo, VillageTab } from "./types/village";
 import { UserScript } from "./UserScript";
@@ -45,8 +45,16 @@ export class VillageManager implements Automation {
       this.autoFestival(this._cacheManager);
     }
 
+    if (this.settings.electLeader.enabled) {
+      this.autoElect();
+    }
+
     if (this.settings.promoteLeader.enabled) {
-      this.autoPromote();
+      this.autoPromoteLeader();
+    }
+
+    if (this.settings.promoteKittens.enabled) {
+      this.autoPromoteKittens();
     }
   }
 
@@ -136,7 +144,73 @@ export class VillageManager implements Automation {
     return true;
   }
 
-  autoPromote(): void {
+  autoElect(): void {
+    const kittens = this._host.gamePage.village.sim.kittens;
+    const leader = this._host.gamePage.village.leader;
+    const job = this.settings.electLeader.job.selected;
+    const trait = this.settings.electLeader.trait.selected;
+
+    const leaderCandidates = kittens.filter(
+      kitten => kitten.job === job && kitten.trait.name === trait
+    );
+    cdebug(`Found '${leaderCandidates.length}' possible leader candidates.`);
+
+    if (leaderCandidates.length === 0) {
+      return;
+    }
+
+    leaderCandidates.sort((a, b) => b.rank - a.rank);
+    const bestLeader = leaderCandidates[0];
+    cdebug(
+      `Best leader candidate (${bestLeader.name} ${bestLeader.surname}) has rank '${bestLeader.rank}'.`
+    );
+    if (!isNil(leader)) {
+      cdebug(`Current leader (${leader.name} ${leader.surname}) has rank '${leader.rank}'.`);
+
+      if (leader.trait.name === trait && leader.job === job && bestLeader.rank <= leader.rank) {
+        cdebug("Current leader is already ideal. No changes are made.");
+        return;
+      }
+    }
+
+    this._host.gamePage.villageTab.censusPanel.census.makeLeader(bestLeader);
+    this._host.engine.iactivity("act.elect");
+  }
+
+  autoPromoteKittens(): void {
+    const gold = this._workshopManager.getResource("gold");
+    if (this.settings.promoteKittens.trigger < gold.value / gold.maxValue) {
+      return;
+    }
+
+    for (
+      let kittenIndex = 0;
+      kittenIndex < this._host.gamePage.village.sim.kittens.length;
+      kittenIndex++
+    ) {
+      let tier = -1;
+      const engineerSpeciality =
+        this._host.gamePage.village.sim.kittens[kittenIndex].engineerSpeciality;
+      // If this kitten has no engineer speciality, skip it.
+      if (isNil(engineerSpeciality)) {
+        continue;
+      }
+
+      // Check which rank would be ideal for their craft.
+      tier = mustExist(this._host.gamePage.workshop.getCraft(engineerSpeciality)).tier;
+      // If the rank has already been reached, check next kitten.
+      if (tier <= this._host.gamePage.village.sim.kittens[kittenIndex].rank) {
+        continue;
+      }
+
+      // We have found an engineer that isn't at their ideal rank.
+      // No need to look further.
+      this._host.gamePage.village.promoteKittens();
+      return;
+    }
+  }
+
+  autoPromoteLeader(): void {
     // If we have Civil Service unlocked and a leader elected.
     if (
       this._host.gamePage.science.get("civil").researched &&
@@ -186,8 +260,8 @@ export class VillageManager implements Automation {
         trueOutput[out] =
           // If this is a capped resource...
           0 < res.maxValue
-            ? // multiply the amount of times we hunted with the result of an averag hunt.
-              // Cappting at the max value and 0 bounds.
+            ? // multiply the amount of times we hunted with the result of an average hunt.
+              // Capping at the max value and 0 bounds.
               Math.min(outValue * huntCount, Math.max(res.maxValue - res.value, 0))
             : // Otherwise, just multiply unbounded
               outValue * huntCount;

@@ -6,6 +6,7 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/kitten-science/
 markdown_extensions:
+  - abbr
   - admonition
   - pymdownx.details
   - pymdownx.highlight:
@@ -33,6 +34,7 @@ repo_url: https://github.com/kitten-science/kitten-scientists
 site_name: Kitten Scientists
 theme:
   features:
+    - content.code.copy
     - navigation.instant
     - navigation.sections
     - navigation.tabs
@@ -55,3 +57,20 @@ theme:
       toggle:
         icon: material/toggle-switch
         name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Sections:
+      - Overview: sections/overview.md
+      - Bonfire: sections/bonfire.md
+      - Village: sections/village.md
+      - Science: sections/science.md
+      - Workshop: sections/workshop.md
+      - Resource Control: sections/resource-control.md
+      - Trade: sections/trade.md
+      - Religion: sections/religion.md
+      - Space: sections/space.md
+      - Time: sections/time.md
+      - Time Control: sections/time-control.md
+      - Log Filters: sections/log-filters.md

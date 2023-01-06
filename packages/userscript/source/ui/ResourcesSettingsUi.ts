@@ -1,10 +1,10 @@
 import { ResourcesSettings, ResourcesSettingsItem } from "../settings/ResourcesSettings";
 import { ucfirst } from "../tools/Format";
 import { UserScript } from "../UserScript";
-import { ConsumeButton } from "./components/ConsumeButton";
+import { ConsumeButton } from "./components/buttons-text/ConsumeButton";
+import { StockButton } from "./components/buttons-text/StockButton";
 import { SettingListItem } from "./components/SettingListItem";
 import { SettingsPanel } from "./components/SettingsPanel";
-import { StockButton } from "./components/StockButton";
 
 export class ResourcesSettingsUi extends SettingsPanel<ResourcesSettings> {
   private readonly _resources: Array<SettingListItem>;
@@ -16,15 +16,15 @@ export class ResourcesSettingsUi extends SettingsPanel<ResourcesSettings> {
     // Disable checkbox. Resource control is always active.
     this.readOnly = true;
 
-    this._list.addEventListener("enableAll", () => {
+    this.list.addEventListener("enableAll", () => {
       this._resources.forEach(item => (item.setting.enabled = true));
       this.refreshUi();
     });
-    this._list.addEventListener("disableAll", () => {
+    this.list.addEventListener("disableAll", () => {
       this._resources.forEach(item => (item.setting.enabled = false));
       this.refreshUi();
     });
-    this._list.addEventListener("reset", () => {
+    this.list.addEventListener("reset", () => {
       this.setting.load(new ResourcesSettings());
       this.refreshUi();
     });
@@ -59,6 +59,7 @@ export class ResourcesSettingsUi extends SettingsPanel<ResourcesSettings> {
 
     // How many items to stock.
     const stockElement = new StockButton(this._host, title, setting);
+    stockElement.element.addClass("ks-stock-button");
     container.addChild(stockElement);
 
     // The consume rate for the resource.

@@ -1,6 +1,7 @@
 import { consumeEntriesPedantic, objectEntries } from "../tools/Entries";
 import { isNil, Maybe } from "../tools/Maybe";
 import { Job } from "../types";
+import { ElectLeaderSettings } from "./ElectLeaderSettings";
 import { Setting, SettingMax, SettingTrigger } from "./Settings";
 import { LegacyStorage } from "./SettingsStorage";
 
@@ -11,7 +12,9 @@ export class VillageSettings extends Setting {
 
   holdFestivals: Setting;
   hunt: SettingTrigger;
+  promoteKittens: SettingTrigger;
   promoteLeader: Setting;
+  electLeader: ElectLeaderSettings;
 
   constructor(
     enabled = false,
@@ -27,13 +30,17 @@ export class VillageSettings extends Setting {
     },
     holdFestivals = new Setting(true),
     hunt = new SettingTrigger(true, 0.98),
-    promoteLeader = new Setting(true)
+    promoteKittens = new SettingTrigger(true, 1),
+    promoteLeader = new Setting(true),
+    electLeader = new ElectLeaderSettings()
   ) {
     super(enabled);
     this.jobs = jobs;
     this.holdFestivals = holdFestivals;
     this.hunt = hunt;
+    this.promoteKittens = promoteKittens;
     this.promoteLeader = promoteLeader;
+    this.electLeader = electLeader;
   }
 
   load(settings: Maybe<Partial<VillageSettings>>) {
@@ -52,20 +59,7 @@ export class VillageSettings extends Setting {
     this.hunt.enabled = settings.hunt?.enabled ?? this.hunt.enabled;
     this.hunt.trigger = settings.hunt?.trigger ?? this.hunt.trigger;
     this.promoteLeader.enabled = settings.promoteLeader?.enabled ?? this.promoteLeader.enabled;
-  }
-
-  static toLegacyOptions(settings: VillageSettings, subject: LegacyStorage) {
-    subject.toggles.distribute = settings.enabled;
-
-    for (const [name, item] of objectEntries(settings.jobs)) {
-      subject.items[`toggle-${name}` as const] = item.enabled;
-      subject.items[`set-${name}-max` as const] = item.max;
-    }
-
-    subject.items["toggle-festival"] = settings.holdFestivals.enabled;
-    subject.items["toggle-hunt"] = settings.hunt.enabled;
-    subject.triggers["hunt"] = settings.hunt.trigger;
-    subject.items["toggle-promote"] = settings.promoteLeader.enabled;
+    this.electLeader.load(settings.electLeader);
   }
 
   static fromLegacyOptions(subject: LegacyStorage) {

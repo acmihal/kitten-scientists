@@ -142,23 +142,6 @@ export class BonfireSettings extends SettingTrigger {
     this.upgradeBuildings.load(settings.upgradeBuildings);
   }
 
-  static toLegacyOptions(settings: BonfireSettings, subject: LegacyStorage) {
-    subject.toggles.build = settings.enabled;
-    subject.triggers.build = settings.trigger;
-
-    for (const [, item] of objectEntries(settings.buildings)) {
-      subject.items[`toggle-${item.building}` as const] = item.enabled;
-      subject.items[`set-${item.building}-max` as const] = item.max;
-    }
-
-    // The toggle- versions without the underscore are for enabling building the building.
-    // The toggle-_ version with the underscore are for the "auto turn on" the building options.
-    subject.items["toggle-_steamworks"] = settings.turnOnSteamworks.enabled;
-    subject.items["toggle-_magnetos"] = settings.turnOnMagnetos.enabled;
-
-    BuildingUpgradeSettings.toLegacyOptions(settings.upgradeBuildings, subject);
-  }
-
   static fromLegacyOptions(subject: LegacyStorage) {
     const options = new BonfireSettings();
     options.enabled = subject.toggles.build;

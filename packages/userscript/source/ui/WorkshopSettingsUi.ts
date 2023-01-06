@@ -1,9 +1,9 @@
 import { CraftSettingsItem, WorkshopSettings } from "../settings/WorkshopSettings";
 import { UserScript } from "../UserScript";
+import { TriggerButton } from "./components/buttons-icon/TriggerButton";
 import { HeaderListItem } from "./components/HeaderListItem";
 import { SettingLimitedMaxListItem } from "./components/SettingLimitedMaxListItem";
 import { SettingListItem } from "./components/SettingListItem";
-import { TriggerButton } from "./components/TriggerButton";
 import { SettingsSectionUi } from "./SettingsSectionUi";
 import { UpgradeSettingsUi } from "./UpgradeSettingsUi";
 
@@ -18,18 +18,18 @@ export class WorkshopSettingsUi extends SettingsSectionUi<WorkshopSettings> {
     super(host, label, settings);
 
     this._trigger = new TriggerButton(host, label, settings);
-    this._trigger.element.insertBefore(this.list);
+    this._trigger.element.insertBefore(this.list.element);
     this.children.add(this._trigger);
 
-    this._list.addEventListener("enableAll", () => {
+    this.list.addEventListener("enableAll", () => {
       this._crafts.forEach(item => (item.setting.enabled = true));
       this.refreshUi();
     });
-    this._list.addEventListener("disableAll", () => {
+    this.list.addEventListener("disableAll", () => {
       this._crafts.forEach(item => (item.setting.enabled = false));
       this.refreshUi();
     });
-    this._list.addEventListener("reset", () => {
+    this.list.addEventListener("reset", () => {
       this.setting.load(new WorkshopSettings());
       this.refreshUi();
     });

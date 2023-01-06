@@ -1,11 +1,11 @@
 import { ReligionSettings } from "../settings/ReligionSettings";
 import { filterType } from "../tools/Array";
 import { UserScript } from "../UserScript";
+import { TriggerButton } from "./components/buttons-icon/TriggerButton";
 import { HeaderListItem } from "./components/HeaderListItem";
 import { SettingListItem } from "./components/SettingListItem";
 import { SettingMaxListItem } from "./components/SettingMaxListItem";
 import { SettingTriggerListItem } from "./components/SettingTriggerListItem";
-import { TriggerButton } from "./components/TriggerButton";
 import { SettingsSectionUi } from "./SettingsSectionUi";
 
 export class ReligionSettingsUi extends SettingsSectionUi<ReligionSettings> {
@@ -23,18 +23,18 @@ export class ReligionSettingsUi extends SettingsSectionUi<ReligionSettings> {
 
     // Create "trigger" button in the item.
     this._trigger = new TriggerButton(host, label, settings);
-    this._trigger.element.insertBefore(this.list);
+    this._trigger.element.insertBefore(this.list.element);
     this.children.add(this._trigger);
 
-    this._list.addEventListener("enableAll", () => {
+    this.list.addEventListener("enableAll", () => {
       this._buildings.forEach(item => (item.setting.enabled = true));
       this.refreshUi();
     });
-    this._list.addEventListener("disableAll", () => {
+    this.list.addEventListener("disableAll", () => {
       this._buildings.forEach(item => (item.setting.enabled = false));
       this.refreshUi();
     });
-    this._list.addEventListener("reset", () => {
+    this.list.addEventListener("reset", () => {
       this.setting.load(new ReligionSettings());
       this.refreshUi();
     });
@@ -253,6 +253,7 @@ export class ReligionSettingsUi extends SettingsSectionUi<ReligionSettings> {
       this._host,
       this._host.engine.i18n("option.faith.adore"),
       this.setting.adore,
+      "percentage",
       {
         onCheck: () =>
           this._host.engine.imessage("status.sub.enable", [
@@ -270,6 +271,7 @@ export class ReligionSettingsUi extends SettingsSectionUi<ReligionSettings> {
       this._host,
       this._host.engine.i18n("option.praise"),
       this.setting.autoPraise,
+      "percentage",
       {
         onCheck: () =>
           this._host.engine.imessage("status.sub.enable", [

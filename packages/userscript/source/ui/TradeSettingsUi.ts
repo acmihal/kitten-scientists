@@ -2,12 +2,13 @@ import { TradeSettings, TradeSettingsItem } from "../settings/TradeSettings";
 import { ucfirst } from "../tools/Format";
 import { Race } from "../types";
 import { UserScript } from "../UserScript";
+import { SeasonsButton } from "./components/buttons-icon/SeasonsButton";
+import { TriggerButton } from "./components/buttons-icon/TriggerButton";
 import { HeaderListItem } from "./components/HeaderListItem";
-import { SeasonsButton } from "./components/SeasonsButton";
 import { SeasonsList } from "./components/SeasonsList";
 import { SettingLimitedListItem } from "./components/SettingLimitedListItem";
 import { SettingListItem } from "./components/SettingListItem";
-import { TriggerButton } from "./components/TriggerButton";
+import { SettingTriggerListItem } from "./components/SettingTriggerListItem";
 import { EmbassySettingsUi } from "./EmbassySettingsUi";
 import { SettingsSectionUi } from "./SettingsSectionUi";
 
@@ -24,18 +25,18 @@ export class TradeSettingsUi extends SettingsSectionUi<TradeSettings> {
     super(host, label, settings);
 
     this._trigger = new TriggerButton(host, label, settings);
-    this._trigger.element.insertBefore(this.list);
+    this._trigger.element.insertBefore(this.list.element);
     this.children.add(this._trigger);
 
-    this._list.addEventListener("enableAll", () => {
+    this.list.addEventListener("enableAll", () => {
       this._races.forEach(item => (item.setting.enabled = true));
       this.refreshUi();
     });
-    this._list.addEventListener("disableAll", () => {
+    this.list.addEventListener("disableAll", () => {
       this._races.forEach(item => (item.setting.enabled = false));
       this.refreshUi();
     });
-    this._list.addEventListener("reset", () => {
+    this.list.addEventListener("reset", () => {
       this.setting.load(new TradeSettings());
       this.refreshUi();
     });
@@ -101,10 +102,11 @@ export class TradeSettingsUi extends SettingsSectionUi<TradeSettings> {
     );
     this.addChild(this._feedLeviathans);
 
-    this._tradeBlackcoin = new SettingListItem(
+    this._tradeBlackcoin = new SettingTriggerListItem(
       this._host,
       this._host.engine.i18n("option.crypto"),
       this.setting.tradeBlackcoin,
+      "integer",
       {
         onCheck: () =>
           this._host.engine.imessage("status.sub.enable", [
