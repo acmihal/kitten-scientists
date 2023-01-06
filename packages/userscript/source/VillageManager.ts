@@ -247,11 +247,11 @@ export class VillageManager implements Automation {
 
     if (trigger <= manpower.value / manpower.maxValue && 100 <= manpower.value) {
       // Determine how many hunts are being performed.
-      let huntCount = Math.floor(manpower.value / 100);
+      const manpowerToSpend = this._workshopManager.getValueAvailable("manpower", true);
+      const huntCount = Math.floor(manpowerToSpend / 100);
       this._host.engine.storeForSummary("hunt", huntCount);
       this._host.engine.iactivity("act.hunt", [huntCount], "ks-hunt");
 
-      huntCount = Math.floor(manpower.value / 100);
       const averageOutput = this._workshopManager.getAverageHunt();
       const trueOutput: Partial<Record<Resource, number>> = {};
 
