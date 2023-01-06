@@ -777,7 +777,7 @@ export class TradeManager implements Automation {
     for (const [resource, required] of objectEntries(materials)) {
       // If this resource is manpower, the amount of trades it allows is straight forward.
       if (resource === "manpower") {
-        total = this._workshopManager.getValueAvailable(resource, true) / required;
+        total = this._workshopManager.getValueAvailable(resource, false) / required;
       } else {
         // For other resources, use a different path to determine the available resource
         // amount.
