@@ -358,9 +358,9 @@ export class TimeControlManager {
 
     // If skipping during this cycle was disabled, bail out.
     const currentCycle = this._host.gamePage.calendar.cycle;
-    if (!this.settings.timeSkip.cyclesList[currentCycle].enabled) {
-      return;
-    }
+    //if (!this.settings.timeSkip.cyclesList[currentCycle].enabled) {
+    //  return;
+    //}
 
     // If we have too much stored heat, wait for it to cool down.
     const heatMax = this._host.gamePage.getEffect("heatMax");
