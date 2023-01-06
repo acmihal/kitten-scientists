@@ -168,7 +168,8 @@
     "build": 0,
     "space": 0,
     "craft": 0.95,
-    "trade": 0.98
+    "trade": 0.98,
+    "hunt": 0.98
   },
   "reset": {
     "reset": false,

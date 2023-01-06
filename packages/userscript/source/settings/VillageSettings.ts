@@ -50,6 +50,7 @@ export class VillageSettings extends Setting {
 
     this.holdFestivals.enabled = settings.holdFestivals?.enabled ?? this.holdFestivals.enabled;
     this.hunt.enabled = settings.hunt?.enabled ?? this.hunt.enabled;
+    this.hunt.trigger = settings.hunt?.trigger ?? this.hunt.trigger;
     this.promoteLeader.enabled = settings.promoteLeader?.enabled ?? this.promoteLeader.enabled;
   }
 
@@ -63,6 +64,7 @@ export class VillageSettings extends Setting {
 
     subject.items["toggle-festival"] = settings.holdFestivals.enabled;
     subject.items["toggle-hunt"] = settings.hunt.enabled;
+    subject.triggers["hunt"] = settings.hunt.trigger;
     subject.items["toggle-promote"] = settings.promoteLeader.enabled;
   }
 
@@ -78,6 +80,7 @@ export class VillageSettings extends Setting {
     options.holdFestivals.enabled =
       subject.items["toggle-festival"] ?? options.holdFestivals.enabled;
     options.hunt.enabled = subject.items["toggle-hunt"] ?? options.hunt.enabled;
+    options.hunt.trigger = subject.triggers["hunt"] ?? options.hunt.trigger;
     options.promoteLeader.enabled =
       subject.items["toggle-promote"] ?? options.promoteLeader.enabled;
 

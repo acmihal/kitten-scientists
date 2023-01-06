@@ -171,6 +171,7 @@ export type LegacyStorage = {
     space: number;
     time: number;
     trade: number;
+    hunt: number;
   };
   reset: {
     reset: boolean;

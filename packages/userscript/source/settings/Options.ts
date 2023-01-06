@@ -52,6 +52,7 @@ export class Options {
       space: settings.space.trigger,
       craft: settings.workshop.trigger,
       trade: settings.trading.trigger,
+      hunt: settings.village.hunt.trigger,
     };
 
     subject.items = {};
