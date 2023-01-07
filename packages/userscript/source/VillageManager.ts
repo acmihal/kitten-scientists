@@ -37,12 +37,13 @@ export class VillageManager implements Automation {
 
     while (this.autoDistributeKittens());
 
-    if (this.settings.hunt.enabled) {
-      this.autoHunt(this._cacheManager);
-    }
-
+    // Start festivals before hunting, because hunting will spend all remaining catpower.
     if (this.settings.holdFestivals.enabled) {
       this.autoFestival(this._cacheManager);
+    }
+
+    if (this.settings.hunt.enabled) {
+      this.autoHunt(this._cacheManager);
     }
 
     if (this.settings.electLeader.enabled) {
