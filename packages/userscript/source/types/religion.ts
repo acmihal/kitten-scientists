@@ -1,10 +1,32 @@
-import { BuildButton, GamePage, GameTab, Price } from ".";
+import {
+  BuildButton,
+  ButtonModernModel,
+  GamePage,
+  GameTab,
+  Price,
+  TransformBtnController,
+} from ".";
 
 export type ReligionTab = GameTab & {
+  /**
+   * Refine tears.
+   */
+  refineBtn: BuildButton;
+
+  /**
+   * Refine time crystals.
+   */
+  refineTCBtn: BuildButton;
+
   /**
    * Religion upgrade (Order of the sun) buttons.
    */
   rUpgradeButtons: Array<BuildButton<ReligionUpgrades>>;
+
+  /**
+   * Sacrifice unicorns.
+   */
+  sacrificeBtn: BuildButton<string, ButtonModernModel, TransformBtnController>;
 
   /**
    * Ziggurath upgrade buttons.

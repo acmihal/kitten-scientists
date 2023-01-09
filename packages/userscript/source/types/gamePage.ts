@@ -171,7 +171,7 @@ export type GamePage = {
   getTicksPerSecondUI: () => number;
 
   /**
-   * Calculate unlimitied diminishing returns.
+   * Calculate unlimited diminishing returns.
    */
   getUnlimitedDR: (value: number, stripe: number) => number;
 
@@ -255,10 +255,7 @@ export type GamePage = {
      */
     _resetFaithInternal: (bonusRatio: number) => void;
   };
-  religionTab: {
-    sacrificeBtn: BuildButton;
-    refineTCBtn: BuildButton;
-  };
+  religionTab: ReligionTab;
   resetAutomatic: () => void;
   resPool: {
     get: (name: Resource) => ResourceInfo;

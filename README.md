@@ -2,8 +2,6 @@
 
 # Kitten Scientists v2
 
-[![BrowserStack Status](https://automate.browserstack.com/badge.svg?badge_key=a3cxbHphUDA2V0hiS01IZVI1RWVBNFpxRmZGMDMxbGNBZE1HeCtyVkdmWT0tLWFKNjFscC9Wb0tzdEhsbTNMVU9udkE9PQ==--d8207026fbdfbecc4011a24e0e001e31f0892dc1)](https://automate.browserstack.com/public-build/a3cxbHphUDA2V0hiS01IZVI1RWVBNFpxRmZGMDMxbGNBZE1HeCtyVkdmWT0tLWFKNjFscC9Wb0tzdEhsbTNMVU9udkE9PQ==--d8207026fbdfbecc4011a24e0e001e31f0892dc1)
-
 Kitten Scientists (KS) is a simple automation script for the complex [Kittens Game](http://kittensgame.com/web/). It was originally developed by [Cameron Condry](https://github.com/cameroncondry/cbc-kitten-scientists) and extended by many great [contributors](#contributors).
 
 ## Installation
@@ -17,7 +15,7 @@ Grab a build from the [Releases page](https://github.com/kitten-science/kitten-s
 ### Bookmarklet
 
 ```
-javascript:(function(){var d=document,s=d.createElement('script');s.src='https://github.com/kitten-science/kitten-scientists/releases/download/v2.0.0-beta.1/kitten-scientists-2.0.0-beta.1.user.js';d.body.appendChild(s);})();
+javascript:(function(){var d=document,s=d.createElement('script');s.src='https://github.com/kitten-science/kitten-scientists/releases/download/v2.0.0-beta.2/kitten-scientists-2.0.0-beta.2.user.js';d.body.appendChild(s);})();
 ```
 
 ### Container
@@ -27,7 +25,7 @@ You can pull any version of the script as a container. The images are hosted on 
 The container exposes Kittens Game's own development server on port 8080. It has the version of the userscript injected into it, according to the tag on the image.
 
 ```shell
-docker run --publish 8080:8080 --rm ghcr.io/kitten-science/kitten-scientists:2.0.0-beta.1
+docker run --publish 8080:8080 --rm ghcr.io/kitten-science/kitten-scientists:2.0.0-beta.2
 ```
 
 ## Documentation

@@ -12,7 +12,7 @@ import { WorkshopManager } from "./WorkshopManager";
 
 export class VillageManager implements Automation {
   private readonly _host: UserScript;
-  settings: VillageSettings;
+  readonly settings: VillageSettings;
   readonly manager: TabManager<VillageTab>;
   private readonly _cacheManager: MaterialsCache;
   private readonly _workshopManager: WorkshopManager;
@@ -59,10 +59,6 @@ export class VillageManager implements Automation {
     }
   }
 
-  load(settings: VillageSettings) {
-    this.settings.load(settings);
-  }
-
   autoDistributeKittens(): boolean {
     const freeKittens = this._host.gamePage.village.getFreeKittens();
     if (!freeKittens) {
@@ -107,8 +103,17 @@ export class VillageManager implements Automation {
       return false;
     }
 
+    // Check if we _could_ assign farmers _and_ currently don't have any assigned.
+    // The idea here is, don't assign any kittens into jobs without having filled
+    // that single open farmer position first. This might prevent kitten death in
+    // certain scenarios.
+    const noFarmersAssigned = !isNil(
+      jobsNotCapped.find(job => job.job.name === "farmer" && job.count === 0)
+    );
+
     // Find the job with the least kittens assigned and assign a kitten to that job.
     jobsNotCapped.sort((a, b) => a.count - b.count);
+    //const jobName = noFarmersAssigned ? "farmer" : jobsNotCapped[0].job.name;
     let jobName = jobsNotCapped[0].job.name;
 
     if (priestNotCapped && farmerNotCapped) {

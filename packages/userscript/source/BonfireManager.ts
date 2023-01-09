@@ -4,7 +4,15 @@ import { BonfireBuildingSetting, BonfireItem, BonfireSettings } from "./settings
 import { TabManager } from "./TabManager";
 import { cwarn } from "./tools/Log";
 import { isNil, mustExist } from "./tools/Maybe";
-import { BuildButton, Building, BuildingExt, BuildingMeta, GameTab } from "./types";
+import {
+  BuildButton,
+  Building,
+  BuildingExt,
+  BuildingMeta,
+  ButtonModernController,
+  ButtonModernModel,
+  GameTab,
+} from "./types";
 import { UserScript } from "./UserScript";
 import { WorkshopManager } from "./WorkshopManager";
 
@@ -12,7 +20,7 @@ export type BonfireTab = GameTab;
 
 export class BonfireManager implements Automation {
   private readonly _host: UserScript;
-  settings: BonfireSettings;
+  readonly settings: BonfireSettings;
   readonly manager: TabManager<BonfireTab>;
   private readonly _bulkManager: BulkPurchaseHelper;
   private readonly _workshopManager: WorkshopManager;
@@ -37,10 +45,6 @@ export class BonfireManager implements Automation {
 
     this.autoBuild();
     this.autoMisc();
-  }
-
-  load(settings: BonfireSettings) {
-    this.settings.load(settings);
   }
 
   /**
@@ -306,7 +310,10 @@ export class BonfireManager implements Automation {
     return this._host.gamePage.bld.getBuildingExt(name);
   }
 
-  getBuildButton(name: Building, stage?: number): BuildButton | null {
+  getBuildButton(
+    name: Building,
+    stage?: number
+  ): BuildButton<string, ButtonModernModel, ButtonModernController> | null {
     const buttons = this.manager.tab.children;
     const build = this.getBuild(name);
     const label = this._getBuildLabel(build.meta, stage);
@@ -314,7 +321,7 @@ export class BonfireManager implements Automation {
     for (const button of buttons) {
       const haystack = button.model.name;
       if (haystack.indexOf(label) !== -1) {
-        return button;
+        return button as BuildButton<string, ButtonModernModel, ButtonModernController>;
       }
     }
 

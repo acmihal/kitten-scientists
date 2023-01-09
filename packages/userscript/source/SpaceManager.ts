@@ -3,13 +3,21 @@ import { BulkPurchaseHelper } from "./helper/BulkPurchaseHelper";
 import { SpaceBuildingSetting, SpaceSettings } from "./settings/SpaceSettings";
 import { TabManager } from "./TabManager";
 import { cinfo, cwarn } from "./tools/Log";
-import { BuildButton, SpaceBuildingInfo, SpaceBuildings, SpaceTab } from "./types";
+import { mustExist } from "./tools/Maybe";
+import {
+  BuildButton,
+  ButtonModernController,
+  ButtonModernModel,
+  SpaceBuildingInfo,
+  SpaceBuildings,
+  SpaceTab,
+} from "./types";
 import { UserScript } from "./UserScript";
 import { WorkshopManager } from "./WorkshopManager";
 
 export class SpaceManager implements Automation {
   private readonly _host: UserScript;
-  settings: SpaceSettings;
+  readonly settings: SpaceSettings;
   readonly manager: TabManager<SpaceTab>;
   private readonly _bulkManager: BulkPurchaseHelper;
   private readonly _workshopManager: WorkshopManager;
@@ -39,10 +47,6 @@ export class SpaceManager implements Automation {
     if (this.settings.unlockMissions.enabled) {
       this.autoUnlock();
     }
-  }
-
-  load(settings: SpaceSettings) {
-    this.settings.load(settings);
   }
 
   /**
@@ -104,7 +108,7 @@ export class SpaceManager implements Automation {
       }
 
       const model = this.manager.tab.GCPanel.children[i];
-      const prices = model.model.prices;
+      const prices = mustExist(model.model.prices);
       for (const resource of prices) {
         // If we can't afford this resource price, continue with the next mission.
         if (this._workshopManager.getValueAvailable(resource.name, true) < resource.val) {
@@ -173,12 +177,16 @@ export class SpaceManager implements Automation {
     return this._host.gamePage.space.getBuilding(name);
   }
 
-  getBuildButton(name: string): BuildButton | null {
+  getBuildButton(
+    name: string
+  ): BuildButton<string, ButtonModernModel, ButtonModernController> | null {
     const panels = this.manager.tab.planetPanels;
 
     for (const panel of panels) {
       for (const child of panel.children) {
-        if (child.id === name) return child;
+        if (child.id === name) {
+          return child as BuildButton<string, ButtonModernModel, ButtonModernController>;
+        }
       }
     }
 

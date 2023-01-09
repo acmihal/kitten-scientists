@@ -4,34 +4,24 @@ import { TriggerButton } from "./components/buttons-icon/TriggerButton";
 import { HeaderListItem } from "./components/HeaderListItem";
 import { SettingListItem } from "./components/SettingListItem";
 import { SettingMaxListItem } from "./components/SettingMaxListItem";
+import { SettingsList } from "./components/SettingsList";
 import { SettingsSectionUi } from "./SettingsSectionUi";
 
 export class TimeSettingsUi extends SettingsSectionUi<TimeSettings> {
   private readonly _trigger: TriggerButton;
   private readonly _buildings: Array<SettingListItem>;
   private readonly _fixCryochamber: SettingListItem;
+  private readonly _turnOnChronoFurnace: SettingListItem;
 
   constructor(host: UserScript, settings: TimeSettings) {
     const label = host.engine.i18n("ui.time");
     super(host, label, settings);
 
     this._trigger = new TriggerButton(host, label, settings);
-    this._trigger.element.insertBefore(this.list.element);
+    this._trigger.element.insertAfter(this._expando.element);
     this.children.add(this._trigger);
 
-    this.list.addEventListener("enableAll", () => {
-      this._buildings.forEach(item => (item.setting.enabled = true));
-      this.refreshUi();
-    });
-    this.list.addEventListener("disableAll", () => {
-      this._buildings.forEach(item => (item.setting.enabled = false));
-      this.refreshUi();
-    });
-    this.list.addEventListener("reset", () => {
-      this.setting.load(new TimeSettings());
-      this.refreshUi();
-    });
-
+    const listBuildings = new SettingsList(this._host);
     this._buildings = [
       this._getTimeSetting(
         this.setting.buildings.temporalBattery,
@@ -77,13 +67,17 @@ export class TimeSettingsUi extends SettingsSectionUi<TimeSettings> {
       ),
       this._getTimeSetting(
         this.setting.buildings.voidResonator,
-        this._host.engine.i18n("$time.vsu.voidResonator.label"),
-        true
+        this._host.engine.i18n("$time.vsu.voidResonator.label")
       ),
     ];
-    this.addChildren(this._buildings);
+    listBuildings.addChildren(this._buildings);
+    this.addChild(listBuildings);
 
-    this.addChild(new HeaderListItem(this._host, "Additional options"));
+    const listAddition = new SettingsList(this._host, {
+      hasDisableAll: false,
+      hasEnableAll: false,
+    });
+    listAddition.addChild(new HeaderListItem(this._host, "Additional options"));
     this._fixCryochamber = new SettingListItem(
       this._host,
       this._host.engine.i18n("option.fix.cry"),
@@ -99,19 +93,32 @@ export class TimeSettingsUi extends SettingsSectionUi<TimeSettings> {
           ]),
       }
     );
-    this.addChild(this._fixCryochamber);
+    listAddition.addChild(this._fixCryochamber);
+
+    this._turnOnChronoFurnace = new SettingListItem(
+      this._host,
+      this._host.engine.i18n("option.chronofurnace"),
+      this.setting.turnOnChronoFurnace,
+      {
+        onCheck: () =>
+          this._host.engine.imessage("status.sub.enable", [
+            this._host.engine.i18n("option.chronofurnace"),
+          ]),
+        onUnCheck: () =>
+          this._host.engine.imessage("status.sub.disable", [
+            this._host.engine.i18n("option.chronofurnace"),
+          ]),
+      }
+    );
+    listAddition.addChild(this._turnOnChronoFurnace);
+    this.addChild(listAddition);
   }
 
   private _getTimeSetting(setting: TimeSettingsItem, label: string, delimiter = false) {
-    return new SettingMaxListItem(
-      this._host,
-      label,
-      setting,
-      {
-        onCheck: () => this._host.engine.imessage("status.sub.enable", [label]),
-        onUnCheck: () => this._host.engine.imessage("status.sub.disable", [label]),
-      },
-      delimiter
-    );
+    return new SettingMaxListItem(this._host, label, setting, {
+      delimiter,
+      onCheck: () => this._host.engine.imessage("status.sub.enable", [label]),
+      onUnCheck: () => this._host.engine.imessage("status.sub.disable", [label]),
+    });
   }
 }

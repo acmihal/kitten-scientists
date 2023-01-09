@@ -1,8 +1,10 @@
+import { Icons } from "../images/Icons";
 import { isNil, mustExist } from "../tools/Maybe";
 import { UserScript } from "../UserScript";
 import { BonfireSettingsUi } from "./BonfireSettingsUi";
+import { UiComponent } from "./components/UiComponent";
 import { EngineSettingsUi } from "./EngineSettingsUi";
-import { FiltersSettingsUi } from "./FilterSettingsUi";
+import { LogFiltersSettingsUi } from "./LogFilterSettingsUi";
 import { ReligionSettingsUi } from "./ReligionSettingsUi";
 import { ResourcesSettingsUi } from "./ResourcesSettingsUi";
 import { ScienceSettingsUi } from "./ScienceSettingsUi";
@@ -13,89 +15,87 @@ import { TradeSettingsUi } from "./TradeSettingsUi";
 import { VillageSettingsUi } from "./VillageSettingsUi";
 import { WorkshopSettingsUi } from "./WorkshopSettingsUi";
 
-export class UserInterface {
-  private readonly _host: UserScript;
+export class UserInterface extends UiComponent {
+  readonly element: JQuery<HTMLElement>;
 
   private _engineUi: EngineSettingsUi;
-  private _bonfireUi: BonfireSettingsUi;
-  private _spaceUi: SpaceSettingsUi;
-  private _craftUi: WorkshopSettingsUi;
-  private _resourcesUi: ResourcesSettingsUi;
-  private _unlockUi: ScienceSettingsUi;
-  private _tradingUi: TradeSettingsUi;
-  private _religionUi: ReligionSettingsUi;
-  private _timeUi: TimeSettingsUi;
-  private _timeCtrlUi: TimeControlSettingsUi;
-  private _distributeUi: VillageSettingsUi;
-  private _filterUi: FiltersSettingsUi;
+  private _sections: Array<
+    | BonfireSettingsUi
+    | SpaceSettingsUi
+    | WorkshopSettingsUi
+    | ResourcesSettingsUi
+    | ScienceSettingsUi
+    | TradeSettingsUi
+    | ReligionSettingsUi
+    | TimeSettingsUi
+    | TimeControlSettingsUi
+    | VillageSettingsUi
+    | LogFiltersSettingsUi
+  >;
 
   constructor(host: UserScript) {
-    this._host = host;
+    super(host);
 
     const engine = this._host.engine;
     this._engineUi = new EngineSettingsUi(this._host, engine.settings);
-    this._bonfireUi = new BonfireSettingsUi(this._host, engine.bonfireManager.settings);
-    this._spaceUi = new SpaceSettingsUi(this._host, engine.spaceManager.settings);
-    this._craftUi = new WorkshopSettingsUi(this._host, engine.workshopManager.settings);
-    this._resourcesUi = new ResourcesSettingsUi(this._host, engine.settings.resources);
-    this._unlockUi = new ScienceSettingsUi(this._host, engine.scienceManager.settings);
-    this._tradingUi = new TradeSettingsUi(this._host, engine.tradeManager.settings);
-    this._religionUi = new ReligionSettingsUi(this._host, engine.religionManager.settings);
-    this._timeUi = new TimeSettingsUi(this._host, engine.timeManager.settings);
-    this._timeCtrlUi = new TimeControlSettingsUi(this._host, engine.timeControlManager.settings);
-    this._distributeUi = new VillageSettingsUi(this._host, engine.villageManager.settings);
-    this._filterUi = new FiltersSettingsUi(this._host, engine.settings.filters);
-  }
+    this._sections = [
+      new BonfireSettingsUi(this._host, engine.bonfireManager.settings),
+      new VillageSettingsUi(this._host, engine.villageManager.settings),
+      new ScienceSettingsUi(this._host, engine.scienceManager.settings),
+      new WorkshopSettingsUi(this._host, engine.workshopManager.settings),
+      new ResourcesSettingsUi(this._host, engine.settings.resources),
+      new TradeSettingsUi(this._host, engine.tradeManager.settings),
+      new ReligionSettingsUi(this._host, engine.religionManager.settings),
+      new SpaceSettingsUi(this._host, engine.spaceManager.settings),
+      new TimeSettingsUi(this._host, engine.timeManager.settings),
+      new TimeControlSettingsUi(this._host, engine.timeControlManager.settings),
+      new LogFiltersSettingsUi(this._host, engine.settings.filters),
+    ];
 
-  construct(): void {
     this._installCss();
 
     const version = "Kitten Scientists v" + (KS_VERSION ?? "(unknown)");
 
-    const optionsElement = $("<div/>", { id: "ks" });
+    const ks = $("<div/>", { id: "ks" });
     const optionsTitleElement = $("<div/>", {
       id: "ks-version",
       text: version,
     });
-    optionsElement.append(optionsTitleElement);
+    ks.append(optionsTitleElement);
 
     const optionsListElement = $("<ul/>");
     optionsListElement.append(this._engineUi.element);
-    optionsListElement.append(this._bonfireUi.element);
-    optionsListElement.append(this._distributeUi.element);
-    optionsListElement.append(this._unlockUi.element);
-    optionsListElement.append(this._craftUi.element);
-    optionsListElement.append(this._resourcesUi.element);
-    optionsListElement.append(this._tradingUi.element);
-    optionsListElement.append(this._religionUi.element);
-    optionsListElement.append(this._spaceUi.element);
-    optionsListElement.append(this._timeUi.element);
-    optionsListElement.append(this._timeCtrlUi.element);
-    optionsListElement.append(this._filterUi.element);
+    this._sections.forEach(section => optionsListElement.append(section.element));
 
     // Make _engineUI's expando button hide/show the other option groups
     const expando = this._engineUi.expando;
     let sectionsVisible = false;
     expando.element.on("click", () => {
       sectionsVisible = !sectionsVisible;
-      if (sectionsVisible) {
-        expando.setExpanded();
-      } else {
-        expando.setCollapsed();
+      for (const section of this._sections) {
+        section.toggle(sectionsVisible, true);
       }
-
-      this._bonfireUi.toggle(sectionsVisible);
-      this._spaceUi.toggle(sectionsVisible);
-      this._craftUi.toggle(sectionsVisible);
-      this._resourcesUi.toggle(sectionsVisible);
-      this._unlockUi.toggle(sectionsVisible);
-      this._tradingUi.toggle(sectionsVisible);
-      this._religionUi.toggle(sectionsVisible);
-      this._timeUi.toggle(sectionsVisible);
-      this._timeCtrlUi.toggle(sectionsVisible);
-      this._distributeUi.toggle(sectionsVisible);
-      this._filterUi.toggle(sectionsVisible);
     });
+
+    // Keep track of open panels and adjust the state of the
+    // expando accordingly.
+    let panelsOpen = 0;
+    for (const section of this._sections) {
+      section.addEventListener("panelHidden", () => {
+        --panelsOpen;
+        if (panelsOpen === 0) {
+          sectionsVisible = false;
+        }
+        if (!sectionsVisible) {
+          expando.setCollapsed();
+        }
+      });
+      section.addEventListener("panelShown", () => {
+        ++panelsOpen;
+        sectionsVisible = true;
+        expando.setExpanded();
+      });
+    }
 
     const copyButton = this._engineUi.copyButton;
     copyButton.element.on("click", () => {
@@ -111,7 +111,7 @@ export class UserInterface {
 
     // Set up the "show activity summary" area.
     const showActivity = $("<span/>", {
-      html: '<svg style="width: 15px; height: 15px;" viewBox="0 0 48 48"><path fill="currentColor" d="M15.45 16.95q.6 0 1.05-.45.45-.45.45-1.05 0-.6-.45-1.05-.45-.45-1.05-.45-.6 0-1.05.45-.45.45-.45 1.05 0 .6.45 1.05.45.45 1.05.45Zm0 8.55q.6 0 1.05-.45.45-.45.45-1.05 0-.6-.45-1.05-.45-.45-1.05-.45-.6 0-1.05.45-.45.45-.45 1.05 0 .6.45 1.05.45.45 1.05.45Zm0 8.55q.6 0 1.05-.45.45-.45.45-1.05 0-.6-.45-1.05-.45-.45-1.05-.45-.6 0-1.05.45-.45.45-.45 1.05 0 .6.45 1.05.45.45 1.05.45ZM9 42q-1.2 0-2.1-.9Q6 40.2 6 39V9q0-1.2.9-2.1Q7.8 6 9 6h23.1l9.9 9.9V39q0 1.2-.9 2.1-.9.9-2.1.9Zm0-3h30V17.55h-8.55V9H9v30ZM9 9v8.55V9v30V9Z"/></svg>',
+      html: `<svg style="width: 15px; height: 15px;" viewBox="0 0 48 48"><path fill="currentColor" d="${Icons.Summary}"/></svg>`,
       title: this._host.engine.i18n("summary.show"),
     }).addClass("ks-show-activity");
 
@@ -121,22 +121,16 @@ export class UserInterface {
 
     // add the options above the game log
     const right = $("#rightColumn");
-    right.prepend(optionsElement.append(optionsListElement));
+    right.prepend(ks.append(optionsListElement));
+
+    this.element = ks;
   }
 
   refreshUi(): void {
     this._engineUi.refreshUi();
-    this._bonfireUi.refreshUi();
-    this._spaceUi.refreshUi();
-    this._craftUi.refreshUi();
-    this._resourcesUi.refreshUi();
-    this._unlockUi.refreshUi();
-    this._tradingUi.refreshUi();
-    this._religionUi.refreshUi();
-    this._timeUi.refreshUi();
-    this._timeCtrlUi.refreshUi();
-    this._distributeUi.refreshUi();
-    this._filterUi.refreshUi();
+    for (const section of this._sections) {
+      section.refreshUi();
+    }
   }
 
   private _installCss(): void {
@@ -149,17 +143,42 @@ export class UserInterface {
     );
     this._addRule(
       `#ks #ks-version {
-        margin: 2px 5px;
+        margin: 2px 0 2px 2px;
       }`
     );
-    this._addRule("#ks ul { list-style: none; margin: 0 0 5px; padding: 0; }");
+    this._addRule("#ks ul { list-style: none; margin: 0; padding: 0; }");
     this._addRule('#ks ul:after { clear: both; content: " "; display: block; height: 0; }');
+    this._addRule(
+      `#ks .ks-checkbox {
+        margin: 1px 5px 2px 2px;
+       }`
+    );
+    this._addRule(
+      `#ks .ks-fieldset {
+        border-bottom: none;
+        border-right: none;
+        border-top: none;
+       }`
+    );
     this._addRule(
       `#ks ul li { 
         float: left;
         width: 100%;
         border-bottom: 1px solid transparent;
         transition: .3s;
+      }`
+    );
+    this._addRule(
+      `#ks ul li .ks-panel-content { 
+        border-left: 1px dashed grey;
+        padding-left: 16px;
+        margin-left: 8px;
+        margin-top: 5px;
+      }`
+    );
+    this._addRule(
+      `#ks ul .ks-setting.ks-expanded { 
+        margin-bottom: 10px;
       }`
     );
     // Hover guides
@@ -194,15 +213,15 @@ export class UserInterface {
         cursor: pointer;
         display: block;
         float: right;
-        padding-right: 5px;
-        padding-top: 2px;
+        padding-right: 3px;
+        line-height: 0;
       }`
     );
     this._addRule(
       `#ks ul li.ks-setting .ks-icon-label {
         display: inline-block;
-        margin-right: 10px;
-        margin-left: 3px;
+        margin-right: 4px;
+        margin-left: 2px;
         vertical-align: middle;
       }`
     );
@@ -238,16 +257,27 @@ export class UserInterface {
 
     // Setting: List
     this._addRule(
-      `#ks ul li.ks-setting .ks-list {
-        display: none;
-        padding-left: 20px;
+      // This compensates the floating tools below the list.
+      `#ks ul li.ks-setting .ks-list-container {
+        margin-bottom: 4px;
       }`
     );
-    // Items lists have additional padding due to the "enable/disable all" buttons.
     this._addRule(
       `#ks ul li.ks-setting .ks-list.ks-items-list {
-        padding-top: 4px;
         user-select: none;
+      }`
+    );
+    this._addRule(
+      `#ks ul li.ks-setting .ks-list ~ .ks-list-tools {
+        border-top: 1px dotted grey;
+        margin-left: 0px;
+        margin-top: 2px;
+      }`
+    );
+    this._addRule(
+      `#ks ul li.ks-setting .ks-list ~ .ks-list-tools .ks-icon-button {
+        display: inline-block;
+        float: none;
       }`
     );
     this._addRule(
@@ -261,13 +291,13 @@ export class UserInterface {
     this._addRule(
       `#ks ul li.ks-setting .ks-stock-button {
         display: inline-block;
-        min-width: 120px;
+        min-width: 86px;
       }`
     );
 
     // Style settings that act as UI delimiters.
     this._addRule(
-      `#ks ul li.ks-setting.ks-delimiter {
+      `#ks ul .ks-delimiter {
         margin-bottom: 10px;
       }`
     );

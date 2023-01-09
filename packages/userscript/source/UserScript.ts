@@ -87,7 +87,6 @@ export class UserScript {
 
     this.engine = new Engine(this);
     this._userInterface = new UserInterface(this);
-    this._userInterface.construct();
     this._userInterface.refreshUi();
   }
 
@@ -199,7 +198,7 @@ export class UserScript {
     },
     resetState: () => null,
     save: (saveData: Record<string, unknown>) => {
-      // We ignore the manager invokation, because we already handle the
+      // We ignore the manager invocation, because we already handle the
       // `game/beforesave` event, which is intended for external consumers.
     },
   };
@@ -278,7 +277,7 @@ export class UserScript {
   }
 
   /**
-   * Returns an instance of the userscript in our default confiuration.
+   * Returns an instance of the userscript in our default configuration.
    *
    * @returns The default userscript instance.
    */

@@ -8,8 +8,11 @@ import { objectEntries } from "./tools/Entries";
 import { isNil, mustExist } from "./tools/Maybe";
 import {
   BuildButton,
+  ButtonModernController,
+  ButtonModernModel,
   ChronoForgeUpgradeInfo,
   ChronoForgeUpgrades,
+  ShatterTCBtnController,
   TimeItemVariant,
   TimeTab,
   VoidSpaceUpgradeInfo,
@@ -20,7 +23,7 @@ import { WorkshopManager } from "./WorkshopManager";
 
 export class TimeControlManager {
   private readonly _host: UserScript;
-  settings: TimeControlSettings;
+  readonly settings: TimeControlSettings;
   readonly manager: TabManager<TimeTab>;
   private readonly _bonfireManager: BonfireManager;
   private readonly _religionManager: ReligionManager;
@@ -61,10 +64,6 @@ export class TimeControlManager {
     }
   }
 
-  load(settings: TimeControlSettings) {
-    this.settings.load(settings);
-  }
-
   async autoReset(engine: Engine) {
     // Don't reset if there's a challenge running.
     if (this._host.gamePage.challenges.currentChallenge) {
@@ -81,7 +80,9 @@ export class TimeControlManager {
     // buttons and see if the item appears on the checklist.
     // If we don't have a given item, but we *could* buy it, then we act
     // as if we already had it.
-    const check = (buttons: Array<BuildButton>) => {
+    const check = (
+      buttons: Array<BuildButton<string, ButtonModernModel, ButtonModernController>>
+    ) => {
       if (checkList.length !== 0) {
         for (const button of buttons) {
           if (!button.model.metadata) {
@@ -91,7 +92,7 @@ export class TimeControlManager {
           const index = checkList.indexOf(name);
           if (index !== -1) {
             checkList.splice(index, 1);
-            if (this._host.gamePage.resPool.hasRes(button.model.prices)) {
+            if (this._host.gamePage.resPool.hasRes(mustExist(button.model.prices))) {
               return true;
             }
           }
@@ -149,7 +150,14 @@ export class TimeControlManager {
         checkList.push("unicornPasture");
       }
     }
-    if (check(this._bonfireManager.manager.tab.buttons) || checkList.length) {
+    if (
+      check(
+        this._bonfireManager.manager.tab.buttons as Array<
+          BuildButton<string, ButtonModernModel, ButtonModernController>
+        >
+      ) ||
+      checkList.length
+    ) {
       return;
     }
 
@@ -173,12 +181,12 @@ export class TimeControlManager {
       const panels = this._spaceManager.manager.tab.planetPanels;
       for (const panel of panels) {
         for (const panelButton of panel.children) {
-          const model = panelButton.model;
+          const model = panelButton.model as ButtonModernModel;
           const name = model.metadata.name;
           const index = checkList.indexOf(name);
           if (index !== -1) {
             checkList.splice(index, 1);
-            if (this._host.gamePage.resPool.hasRes(model.prices)) {
+            if (this._host.gamePage.resPool.hasRes(mustExist(model.prices))) {
               break;
             }
           }
@@ -205,9 +213,21 @@ export class TimeControlManager {
     }
 
     if (
-      check(this._religionManager.manager.tab.zgUpgradeButtons) ||
-      check(this._religionManager.manager.tab.rUpgradeButtons) ||
-      check(this._religionManager.manager.tab.children[0].children[0].children) ||
+      check(
+        this._religionManager.manager.tab.zgUpgradeButtons as Array<
+          BuildButton<string, ButtonModernModel, ButtonModernController>
+        >
+      ) ||
+      check(
+        this._religionManager.manager.tab.rUpgradeButtons as Array<
+          BuildButton<string, ButtonModernModel, ButtonModernController>
+        >
+      ) ||
+      check(
+        this._religionManager.manager.tab.children[0].children[0].children as Array<
+          BuildButton<string, ButtonModernModel, ButtonModernController>
+        >
+      ) ||
       checkList.length
     ) {
       return;
@@ -229,8 +249,16 @@ export class TimeControlManager {
     }
 
     if (
-      check(this.manager.tab.children[2].children[0].children) ||
-      check(this.manager.tab.children[3].children[0].children) ||
+      check(
+        this.manager.tab.children[2].children[0].children as Array<
+          BuildButton<string, ButtonModernModel, ButtonModernController>
+        >
+      ) ||
+      check(
+        this.manager.tab.children[3].children[0].children as Array<
+          BuildButton<string, ButtonModernModel, ButtonModernController>
+        >
+      ) ||
       checkList.length
     ) {
       return;
@@ -325,11 +353,24 @@ export class TimeControlManager {
   }
 
   accelerateTime() {
+    const temporalFluxAvailable = this._workshopManager.getValueAvailable("temporalFlux");
+
+    // If there's no available flux (we went below the limit)
+    if (temporalFluxAvailable <= 0) {
+      if (this._host.gamePage.time.isAccelerated) {
+        // Stop the acceleration
+        this._host.gamePage.time.isAccelerated = false;
+      }
+      return;
+    }
+
     if (this._host.gamePage.time.isAccelerated) {
       return;
     }
+
     const temporalFlux = this._host.gamePage.resPool.get("temporalFlux");
-    if (temporalFlux.value >= temporalFlux.maxValue * this.settings.accelerateTime.trigger) {
+
+    if (temporalFlux.maxValue * this.settings.accelerateTime.trigger <= temporalFlux.value) {
       this._host.gamePage.time.isAccelerated = true;
       this._host.engine.iactivity("act.accelerate", [], "ks-accelerate");
       this._host.engine.storeForSummary("accelerate", 1);
@@ -420,7 +461,7 @@ export class TimeControlManager {
     if (0 < willSkip) {
       const shatter = this._host.gamePage.timeTab.cfPanel.children[0].children[0]; // check?
       this._host.engine.iactivity("act.time.skip", [willSkip], "ks-timeSkip");
-      shatter.controller.doShatterAmt(shatter.model, willSkip);
+      (shatter.controller as ShatterTCBtnController).doShatterAmt(shatter.model, willSkip);
       this._host.engine.storeForSummary("time.skip", willSkip);
     }
   }

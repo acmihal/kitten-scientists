@@ -6,8 +6,11 @@ import { cwarn } from "./tools/Log";
 import { mustExist } from "./tools/Maybe";
 import {
   BuildButton,
+  ButtonModernController,
+  ButtonModernModel,
   ChronoForgeUpgradeInfo,
   ChronoForgeUpgrades,
+  FixCryochamberBtnController,
   TimeItemVariant,
   TimeTab,
   VoidSpaceUpgradeInfo,
@@ -18,7 +21,7 @@ import { WorkshopManager } from "./WorkshopManager";
 
 export class TimeManager {
   private readonly _host: UserScript;
-  settings: TimeSettings;
+  readonly settings: TimeSettings;
   readonly manager: TabManager<TimeTab>;
   private readonly _bulkManager: BulkPurchaseHelper;
 
@@ -39,10 +42,9 @@ export class TimeManager {
     if (this.settings.fixCryochambers.enabled) {
       this.fixCryochambers();
     }
-  }
-
-  load(settings: TimeSettings) {
-    this.settings.load(settings);
+    if (this.settings.turnOnChronoFurnace.enabled) {
+      this.turnOnChronoFurnace();
+    }
   }
 
   /**
@@ -135,7 +137,7 @@ export class TimeManager {
   getBuildButton(
     name: ChronoForgeUpgrades | VoidSpaceUpgrades,
     variant: TimeItemVariant
-  ): BuildButton | null {
+  ): BuildButton<string, ButtonModernModel, ButtonModernController> | null {
     let buttons: Array<BuildButton>;
     if (variant === TimeItemVariant.Chronoforge) {
       buttons = this.manager.tab.children[2].children[0].children;
@@ -151,7 +153,7 @@ export class TimeManager {
     for (const button of buttons) {
       const haystack = button.model.name;
       if (haystack.indexOf(build.label) !== -1) {
-        return button;
+        return button as BuildButton<string, ButtonModernModel, ButtonModernController>;
       }
     }
 
@@ -165,13 +167,25 @@ export class TimeManager {
       let fixed = 0;
       const btn = this.manager.tab.vsPanel.children[0].children[0]; //check?
       // doFixCryochamber will check resources
-      while (btn.controller.doFixCryochamber(btn.model)) {
+      while (
+        (btn.controller as FixCryochamberBtnController).doFixCryochamber(
+          btn.model as ButtonModernModel
+        )
+      ) {
         ++fixed;
       }
       if (0 < fixed) {
         this._host.engine.iactivity("act.fix.cry", [fixed], "ks-fixCry");
         this._host.engine.storeForSummary("fix.cry", fixed);
       }
+    }
+  }
+
+  turnOnChronoFurnace() {
+    const chronoFurnace = this._host.gamePage.time.getCFU("blastFurnace");
+    if (!mustExist(chronoFurnace.isAutomationEnabled)) {
+      const button = mustExist(this.getBuildButton("blastFurnace", TimeItemVariant.Chronoforge));
+      button.controller.handleToggleAutomationLinkClick(button.model);
     }
   }
 }

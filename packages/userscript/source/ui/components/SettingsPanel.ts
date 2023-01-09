@@ -1,34 +1,38 @@
 import { Setting } from "../../settings/Settings";
+import { isNil, mustExist } from "../../tools/Maybe";
 import { UserScript } from "../../UserScript";
-import { Panel } from "./Panel";
+import { LabelListItem } from "./LabelListItem";
+import { Panel, PanelOptions } from "./Panel";
 import { SettingListItem } from "./SettingListItem";
-import { SettingsList } from "./SettingsList";
-import { UiComponent } from "./UiComponent";
 
-export class SettingsPanel<TSetting extends Setting = Setting>
+export type SettingsPanelOptions<TListItem extends LabelListItem = LabelListItem> = PanelOptions & {
+  settingItem: TListItem;
+};
+
+export class SettingsPanel<
+    TSetting extends Setting = Setting,
+    TListItem extends LabelListItem = LabelListItem
+  >
   extends Panel
   implements SettingListItem
 {
-  readonly list: SettingsList;
   readonly setting: TSetting;
-  readonly settingItem: SettingListItem;
+  readonly settingItem: TListItem;
 
   get isExpanded() {
     return this._mainChildVisible;
   }
 
   // SettingListItem interface
-  get checkbox() {
-    return this.settingItem.checkbox;
-  }
   get elementLabel() {
     return this._head.element;
   }
+
   get readOnly() {
-    return this.settingItem.readOnly;
+    return true;
   }
   set readOnly(value: boolean) {
-    this.settingItem.readOnly = value;
+    /* noop */
   }
 
   /**
@@ -37,23 +41,23 @@ export class SettingsPanel<TSetting extends Setting = Setting>
    * @param host A reference to the host.
    * @param label The label to put main checkbox of this section.
    * @param setting An setting for which this is the settings panel.
-   * @param initiallyExpanded Should the main child be expanded right away?
+   * @param options Options for this panel.
    */
-  constructor(host: UserScript, label: string, setting: TSetting, initiallyExpanded = false) {
-    const list = new SettingsList(host);
-    const settingItem = new SettingListItem(host, label, setting, {
-      onCheck: () => host.engine.imessage("status.auto.enable", [label]),
-      onUnCheck: () => host.engine.imessage("status.auto.disable", [label]),
-    });
-    super(host, list, settingItem, initiallyExpanded);
-    this.list = list;
+  constructor(
+    host: UserScript,
+    label: string,
+    setting: TSetting,
+    options?: Partial<SettingsPanelOptions<TListItem>>
+  ) {
+    const settingItem = !isNil(options?.settingItem)
+      ? mustExist(options?.settingItem)
+      : (new SettingListItem(host, label, setting, {
+          onCheck: () => host.engine.imessage("status.auto.enable", [label]),
+          onUnCheck: () => host.engine.imessage("status.auto.disable", [label]),
+        }) as unknown as TListItem);
+    super(host, settingItem, options);
+
     this.settingItem = settingItem;
-
     this.setting = setting;
-  }
-
-  override addChild(child: UiComponent) {
-    this.children.add(child);
-    this._child.element.append(child.element);
   }
 }

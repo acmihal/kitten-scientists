@@ -3,7 +3,7 @@ import { ReligionSettingsItem } from "../settings/ReligionSettings";
 import { Setting, SettingMax } from "../settings/Settings";
 import { UserScript } from "../UserScript";
 import { SettingMaxListItem } from "./components/SettingMaxListItem";
-import { SettingsPanel } from "./components/SettingsPanel";
+import { SettingsPanel, SettingsPanelOptions } from "./components/SettingsPanel";
 
 export type Toggleable = {
   get isExpanded(): boolean;
@@ -11,14 +11,20 @@ export type Toggleable = {
 };
 
 /**
- * Base class for all automation UI sections.
- * This provides common functionality to help build the automation sections themselves.
+ * Base class for UI sections.
+ * This exists mostly for historic reasons. New implementations likely want to use
+ * `SettingsPanel` or `Panel` directly.
  */
 export abstract class SettingsSectionUi<
   TSetting extends Setting = Setting
 > extends SettingsPanel<TSetting> {
-  constructor(host: UserScript, label: string, settings: TSetting, initiallyExpanded = false) {
-    super(host, label, settings, initiallyExpanded);
+  constructor(
+    host: UserScript,
+    label: string,
+    settings: TSetting,
+    options?: SettingsPanelOptions<SettingsPanel<TSetting>>
+  ) {
+    super(host, label, settings, options);
   }
 
   protected _getBuildOption(
@@ -27,16 +33,11 @@ export abstract class SettingsSectionUi<
     delimiter = false,
     upgradeIndicator = false
   ) {
-    return new SettingMaxListItem(
-      this._host,
-      label,
-      option,
-      {
-        onCheck: () => this._host.engine.imessage("status.sub.enable", [label]),
-        onUnCheck: () => this._host.engine.imessage("status.sub.disable", [label]),
-      },
+    return new SettingMaxListItem(this._host, label, option, {
       delimiter,
-      upgradeIndicator
-    );
+      onCheck: () => this._host.engine.imessage("status.sub.enable", [label]),
+      onUnCheck: () => this._host.engine.imessage("status.sub.disable", [label]),
+      upgradeIndicator,
+    });
   }
 }
