@@ -172,8 +172,7 @@ export class ReligionSettingsUi extends SettingsSectionUi<ReligionSettings> {
         ),
         this._getBuildOption(
           this.setting.buildings.transcendence,
-          this._host.engine.i18n("$religion.ru.transcendence.label"),
-          true
+          this._host.engine.i18n("$religion.ru.transcendence.label")
         ),
         this._prioritizeSR,
 
