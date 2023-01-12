@@ -30,6 +30,7 @@ export class ResourcesSettings extends Setting {
 
   constructor(
     resources = {
+      alicorn: new ResourcesSettingsItem("alicorn", false, 1, 0),
       alloy: new ResourcesSettingsItem("alloy", false, 1, 0),
       antimatter: new ResourcesSettingsItem("antimatter", false, 1, 0),
       beam: new ResourcesSettingsItem("beam", false, 1, 0),
@@ -50,6 +51,7 @@ export class ResourcesSettings extends Setting {
       ivory: new ResourcesSettingsItem("ivory", false, 1, 0),
       karma: new ResourcesSettingsItem("karma", false, 1, 0),
       kerosene: new ResourcesSettingsItem("kerosene", false, 1, 0),
+      kittens: new ResourcesSettingsItem("kittens", false, 1, 0),
       manpower: new ResourcesSettingsItem("manpower", false, 1, 0),
       manuscript: new ResourcesSettingsItem("manuscript", false, 1, 0),
       megalith: new ResourcesSettingsItem("megalith", false, 1, 0),
@@ -64,6 +66,7 @@ export class ResourcesSettings extends Setting {
       science: new ResourcesSettingsItem("science", false, 1, 0),
       ship: new ResourcesSettingsItem("ship", false, 1, 0),
       slab: new ResourcesSettingsItem("slab", false, 1, 0),
+      sorrow: new ResourcesSettingsItem("sorrow", false, 1, 0),
       spice: new ResourcesSettingsItem("spice", false, 1, 0),
       starchart: new ResourcesSettingsItem("starchart", true, 1, 500),
       steel: new ResourcesSettingsItem("steel", false, 1, 0),

@@ -8,7 +8,7 @@ For a full explanation of how everything in Kitten Scientists works, please visi
 
 ### Userscript Manager (recommended)
 
-Grab a build from the [Releases page](https://github.com/kitten-science/kitten-scientists/releases) and install it.
+Grab the [latest stable build](https://github.com/kitten-science/kitten-scientists/releases/tag/v2.0.0-beta.2), or any other release from the [Releases page](https://github.com/kitten-science/kitten-scientists/releases) and install it.
 
 > If you don't have a userscript manager yet, [Tampermonkey](https://www.tampermonkey.net/) is a good solution for the most popular browsers.
 
@@ -18,15 +18,7 @@ Grab a build from the [Releases page](https://github.com/kitten-science/kitten-s
 javascript:(function(){var d=document,s=d.createElement('script');s.src='https://github.com/kitten-science/kitten-scientists/releases/download/v2.0.0-beta.2/kitten-scientists-2.0.0-beta.2.user.js';d.body.appendChild(s);})();
 ```
 
-### Container
-
-You can pull any version of the script as a container. The images are hosted on the [GitHub registry](https://github.com/kitten-science/kitten-scientists/pkgs/container/kitten-scientists).
-
-The container exposes Kittens Game's own development server on port 8080. It has the version of the userscript injected into it, according to the tag on the image.
-
-```shell
-docker run --publish 8080:8080 --rm ghcr.io/kitten-science/kitten-scientists:2.0.0-beta.2
-```
+This bookmarklet points to the latest stable release. Come back here regularly to see if new versions are available 🙂
 
 ## Contributors
 
@@ -73,7 +65,7 @@ A lot of thanks goes out to all the amazing people who contributed to the origin
 -   [SphtMarathon](https://www.reddit.com/user/SphtMarathon)
 -   [TeWeBu](https://github.com/TeWeBu)
 -   [toadjaune](https://github.com/toadjaune)
--   Tom Rauchenwald
+-   [Tom Rauchenwald](https://github.com/TomRauchenwald)
 -   [trini](https://github.com/trini)
 -   [woutershep](https://github.com/woutershep)
 -   [Wymrite](https://github.com/Wymrite)
