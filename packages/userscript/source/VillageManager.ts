@@ -42,8 +42,8 @@ export class VillageManager implements Automation {
       this.autoFestival(this._cacheManager);
     }
 
-    if (this.settings.hunt.enabled) {
-      this.autoHunt(this._cacheManager);
+    if (this.settings.holdFestivals.enabled) {
+      this.autoFestival(this._cacheManager);
     }
 
     if (this.settings.electLeader.enabled) {
@@ -56,6 +56,11 @@ export class VillageManager implements Automation {
 
     if (this.settings.promoteKittens.enabled) {
       this.autoPromoteKittens();
+    }
+
+    // Hunt after holding festivals because hunting will consume all remaining catpower.
+    if (this.settings.hunt.enabled) {
+      this.autoHunt(this._cacheManager);
     }
   }
 
@@ -327,35 +332,43 @@ export class VillageManager implements Automation {
     }
 
     // Check if the festival would even be profitable for any resource production.
-    //const catpowProfitable =
-    //  4000 *
-    //    (craftManager.getTickVal(
-    //      craftManager.getResource("manpower"),
-    //      cacheManager,
-    //      true
-    //    ) as number) >
-    //  1500;
-    //const cultureProfitable =
-    //  4000 *
-    //    (craftManager.getTickVal(
-    //      craftManager.getResource("culture"),
-    //      cacheManager,
-    //      true
-    //    ) as number) >
-    //  5000;
-    //const parchProfitable =
-    //  4000 *
-    //    (craftManager.getTickVal(
-    //      craftManager.getResource("parchment"),
-    //      cacheManager,
-    //      true
-    //    ) as number) >
-    //  2500;
+    const catpowProfitable =
+      4000 *
+        (craftManager.getTickVal(
+          craftManager.getResource("manpower"),
+          cacheManager,
+          true
+        ) as number) >
+      1500;
+    const cultureProfitable =
+      4000 *
+        (craftManager.getTickVal(
+          craftManager.getResource("culture"),
+          cacheManager,
+          true
+        ) as number) >
+      5000;
+    const parchProfitable =
+      4000 *
+        (craftManager.getTickVal(
+          craftManager.getResource("parchment"),
+          cacheManager,
+          true
+        ) as number) >
+      2500;
 
-    // FIXME ACM always party
-    //if (!catpowProfitable && !cultureProfitable && !parchProfitable) {
-    //  return;
-    //}
+    if (
+      !this.settings.holdUnprofitableFestivals.enabled &&
+      !catpowProfitable &&
+      !cultureProfitable &&
+      !parchProfitable
+    ) {
+      // Festival is not profitable and we don't want to hold unprofitable festivals.
+      // Reasons to hold unprofitable festivals:
+      // - Cycle-specific festival bonus
+      // - Kitten arrival speed bonus
+      return;
+    }
 
     // Render the tab to make sure that the buttons actually exist in the DOM. Otherwise we can't click them.
     this.manager.render();
