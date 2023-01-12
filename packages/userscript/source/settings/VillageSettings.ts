@@ -58,6 +58,7 @@ export class VillageSettings extends Setting {
     this.holdFestivals.enabled = settings.holdFestivals?.enabled ?? this.holdFestivals.enabled;
     this.hunt.enabled = settings.hunt?.enabled ?? this.hunt.enabled;
     this.hunt.trigger = settings.hunt?.trigger ?? this.hunt.trigger;
+    this.promoteKittens.enabled = settings.promoteKittens?.enabled ?? this.promoteKittens.enabled;
     this.promoteLeader.enabled = settings.promoteLeader?.enabled ?? this.promoteLeader.enabled;
     this.electLeader.load(settings.electLeader);
   }
