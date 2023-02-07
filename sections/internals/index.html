@@ -9,17 +9,17 @@
       
       
       
-        <link rel="prev" href="../space/">
+        <link rel="prev" href="../state-management/">
       
       
-        <link rel="next" href="../time-control/">
+        <link rel="next" href="../../development/">
       
       <link rel="icon" href="../../assets/images/favicon.ico">
       <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.11">
     
     
       
-        <title>Time - Kitten Scientists</title>
+        <title>Internals - Kitten Scientists</title>
       
     
     
@@ -71,7 +71,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#time" class="md-skip">
+        <a href="#internals" class="md-skip">
           Skip to content
         </a>
       
@@ -105,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Time
+              Internals
             
           </span>
         </div>
@@ -486,21 +486,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../time/" class="md-nav__link">
         Time
       </a>
-      
     </li>
   
 
@@ -552,11 +542,52 @@
               
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../internals/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Internals
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Internals
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#interval" class="md-nav__link">
+    Interval
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -651,6 +682,21 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#interval" class="md-nav__link">
+    Interval
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -668,18 +714,27 @@
 
 
 
-<h1 id="time">Time<a class="headerlink" href="#time" title="Permanent link">&para;</a></h1>
+<h1 id="internals">Internals<a class="headerlink" href="#internals" title="Permanent link">&para;</a></h1>
+<h2 id="interval">Interval<a class="headerlink" href="#interval" title="Permanent link">&para;</a></h2>
+<p>This specifies how much time should pass between every single time <abbr title="Kitten Scientists">KS</abbr> evaluates the game and checks if any automations should be applied.</p>
+<p>By default, this is <code>2000</code> milliseconds, which is <code>2</code> seconds.</p>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>Lowering this value can cause instability or freeze your game, because so many browser resources will be spent on <abbr title="Kitten Scientists">KS</abbr>. If you want to speed up <abbr title="Kitten Scientists">KS</abbr>, lower the interval gradually.</p>
+</div>
+<!-- prettier-ignore-start -->
+<!-- prettier-ignore-end -->
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 28, 2022</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 31, 2023</span>
       
         <br>
         Created:
-        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">December 28, 2022</span>
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">January 31, 2023</span>
       
     
   </small>
